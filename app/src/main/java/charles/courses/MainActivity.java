@@ -1,24 +1,23 @@
 package charles.courses;
 
-import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.app.AlertDialog;
-import android.support.design.widget.TextInputEditText;
 import android.widget.ListView;
 import android.widget.ArrayAdapter;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-
+    public class ActionType { static final int NEW_TASK = 0; }
+    public class NewTaskAction { static final int CREATED = 0, MODIFIED = 1, CANCELED = 2, DELETED = 3; }
+    public static String TaskDataMarker = "TaskData";
     protected ListView list_;
-    protected ArrayList<String> items_ = new ArrayList<>();
+    public ArrayList<String> items_ = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,27 +34,25 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setTitle("Nouvelle tâche");
-                final TextInputEditText input = new TextInputEditText(MainActivity.this);
-                builder.setView(input);
-
-                // Set up the buttons
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        items_.add( input.getText().toString() );
-                    }
-                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-
-                builder.show();
+                Intent intent = new Intent(MainActivity.this, NewTaskActivity.class);
+                startActivityForResult(intent, ActionType.NEW_TASK);
             }
         });
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we're responding to
+        if (requestCode == ActionType.NEW_TASK) {
+            if ( resultCode == NewTaskAction.CREATED ) {
+                Bundle bundle = data.getExtras();
+                TaskData task = (TaskData) bundle.getSerializable(TaskDataMarker);
+                String toDisplay = task.name_;
+                if ( !task.qty_.isEmpty() ) {
+                    toDisplay += ": " + task.qty_;
+                }
+                items_.add( toDisplay );
+            }
+        }
     }
 
     @Override
