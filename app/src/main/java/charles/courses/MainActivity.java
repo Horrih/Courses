@@ -1,5 +1,6 @@
 package charles.courses;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -8,8 +9,14 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.ListView;
-import android.widget.ArrayAdapter;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -17,7 +24,8 @@ public class MainActivity extends AppCompatActivity {
     public class NewTaskAction { static final int CREATED = 0, MODIFIED = 1, CANCELED = 2, DELETED = 3; }
     public static String TaskDataMarker = "TaskData";
     protected ListView list_;
-    public ArrayList<String> items_ = new ArrayList<>();
+    protected ArrayList<TaskData> items_ = new ArrayList<>();
+    protected String backupFile_ = "CoursesBackup.save";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,9 +34,23 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        //Reload data from previous executions
+        loadBackup();
+
         list_=findViewById(R.id.VuePrinci);
-        ArrayAdapter<String> adapter=new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, items_);
+        TaskAdapter adapter=new TaskAdapter(MainActivity.this, R.layout.task_view, items_);
         list_.setAdapter(adapter);
+        list_.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // Get the selected item text from ListView
+                TaskData taskData = (TaskData) parent.getItemAtPosition(position);
+
+                // Display the selected item text on TextView
+                taskData.completed_  = !taskData.completed_;
+                ((BaseAdapter)list_ .getAdapter()).notifyDataSetChanged();
+            }
+        });
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -46,13 +68,42 @@ public class MainActivity extends AppCompatActivity {
             if ( resultCode == NewTaskAction.CREATED ) {
                 Bundle bundle = data.getExtras();
                 TaskData task = (TaskData) bundle.getSerializable(TaskDataMarker);
-                String toDisplay = task.name_;
-                if ( !task.qty_.isEmpty() ) {
-                    toDisplay += ": " + task.qty_;
-                }
-                items_.add( toDisplay );
+                items_.add( task );
             }
         }
+    }
+
+    protected void backupData()
+    {
+        try (
+            FileOutputStream outputStream = openFileOutput( backupFile_, Context.MODE_PRIVATE);
+            ObjectOutputStream out = new ObjectOutputStream(outputStream);
+         )
+        {
+            out.writeObject(items_);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected void loadBackup()
+    {
+        try (
+            FileInputStream inputStream = openFileInput( backupFile_ );
+            ObjectInputStream in = new ObjectInputStream(inputStream);
+        )
+        {
+            items_ = (ArrayList<TaskData>) in.readObject();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onStop()
+    {
+        backupData();
+        super.onStop();
     }
 
     @Override
