@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
         //Reload data from previous executions
         loadBackup();
 
+        //Creation of an adapter linking the task list with the ListView
         list_=findViewById(R.id.VuePrinci);
         TaskAdapter adapter=new TaskAdapter(MainActivity.this, R.layout.task_view, items_);
         list_.setAdapter(adapter);
@@ -45,15 +46,14 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 // Get the selected item text from ListView
                 TaskData taskData = (TaskData) parent.getItemAtPosition(position);
-
-                // Display the selected item text on TextView
                 taskData.completed_  = !taskData.completed_;
                 ((BaseAdapter)list_ .getAdapter()).notifyDataSetChanged();
             }
         });
 
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        //Popup NewTaskActivity on click on the NewTaskButton
+        FloatingActionButton newTaskButton = findViewById(R.id.NewTaskButton);
+        newTaskButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
                 Intent intent = new Intent(MainActivity.this, NewTaskActivity.class);
@@ -67,8 +67,10 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == ActionType.NEW_TASK) {
             if ( resultCode == NewTaskAction.CREATED ) {
                 Bundle bundle = data.getExtras();
-                TaskData task = (TaskData) bundle.getSerializable(TaskDataMarker);
-                items_.add( task );
+                if ( bundle != null) {
+                    TaskData task = (TaskData) bundle.getSerializable(TaskDataMarker);
+                    items_.add( task );
+                }
             }
         }
     }
@@ -86,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressWarnings("unchecked")
     protected void loadBackup()
     {
         try (
