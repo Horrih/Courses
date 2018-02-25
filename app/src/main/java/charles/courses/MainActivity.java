@@ -50,16 +50,6 @@ public class MainActivity extends AppCompatActivity {
                 ((BaseAdapter)list_ .getAdapter()).notifyDataSetChanged();
             }
         });
-
-        //Popup NewTaskActivity on click on the NewTaskButton
-        FloatingActionButton newTaskButton = findViewById(R.id.NewTaskButton);
-        newTaskButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View view) {
-                Intent intent = new Intent(MainActivity.this, NewTaskActivity.class);
-                startActivityForResult(intent, ActionType.NEW_TASK);
-            }
-        });
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -129,5 +119,25 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    //Called on NewTaskButton click
+    public void onNewTask(View view)
+    {
+        Intent intent = new Intent(MainActivity.this, NewTaskActivity.class);
+        startActivityForResult(intent, ActionType.NEW_TASK);
+    }
+
+    //Called on ClearTaskButton : erases all Tasks that have been completed
+    public void onClearTask(View view)
+    {
+        ArrayList<TaskData> toRemove = new ArrayList<>();
+        for ( TaskData task : items_) {
+            if ( task.completed_) {
+                toRemove.add( task );
+            }
+        }
+        items_.removeAll(toRemove);
+        ((BaseAdapter)list_ .getAdapter()).notifyDataSetChanged();
     }
 }

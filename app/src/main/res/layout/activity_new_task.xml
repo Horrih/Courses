@@ -39,6 +39,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_marginTop="28dp"
+        android:scaleType="center"
         android:onClick="onConfirm"
         android:tint="@color/colorPrimary"
         app:backgroundTint="@android:color/background_light"
