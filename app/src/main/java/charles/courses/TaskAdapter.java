@@ -7,67 +7,140 @@ import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.BaseExpandableListAdapter;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.TreeMap;
 
-public class TaskAdapter extends ArrayAdapter<TaskData>{
+public class TaskAdapter extends BaseExpandableListAdapter {
     private Context context_;
-    private int layoutResourceId_;
-    private ArrayList<TaskData> data_ = null;
+    private ArrayList<TaskData> original_data_ = null;
+    private TreeMap<String, ArrayList<TaskData>> data_ = new TreeMap<>();
 
-    TaskAdapter(Context context, int layoutResourceId, ArrayList<TaskData> data) {
-        super(context, layoutResourceId, data);
-        this.layoutResourceId_ = layoutResourceId;
+    TaskAdapter(Context context, ArrayList<TaskData> data) {
         this.context_ = context;
-        this.data_ = data;
+        this.original_data_ = data;
+        refresh();
+    }
+
+    protected Map.Entry<String, ArrayList<TaskData>> getEntry( int n ) {
+        int i = 0;
+        for(Map.Entry<String,ArrayList<TaskData>> entry : data_.entrySet() ) {
+            if ( i == n ) {
+                return entry;
+            }
+            else {
+                i++;
+            }
+        }
+        return data_.firstEntry();
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        View row = convertView;
-        TaskHolder holder = null;
+    public Object getGroup(int groupPosition) {
+        return getEntry(groupPosition).getKey();
+    }
 
+    @Override
+    public Object getChild( int groupPosition, int childPosition ) {
+        return getEntry(groupPosition).getValue().get(childPosition);
+    }
+
+    @Override
+    public long getChildId(int groupPosition, int childPosition) {
+        return childPosition;
+    }
+
+    @Override
+    public int getChildrenCount(int groupPosition) {
+        return getEntry(groupPosition).getValue().size();
+    }
+
+    @Override
+    public View getChildView(int groupPosition, final int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
+        View row = convertView;
         if(row == null)
         {
             LayoutInflater inflater = ((Activity) context_).getLayoutInflater();
-            row = inflater.inflate(layoutResourceId_, parent, false);
-            holder = new TaskHolder();
-            holder.taskCheckBox_ = row.findViewById(R.id.TaskCheckBox);
-            holder.taskName_ = row.findViewById(R.id.TaskName);
-            holder.taskQty_ = row.findViewById(R.id.TaskQuantity);
-            row.setTag(holder);
-        }
-        else
-        {
-            holder = (TaskHolder)row.getTag();
+            row = inflater.inflate(R.layout.task_view, parent, false);
         }
 
-        TaskData taskData = data_.get(position);
-        holder.taskName_.setText(taskData.name_);
-        holder.taskQty_.setText(taskData.qty_);
-        holder.taskCheckBox_.setChecked(taskData.completed_);
-        float transparency = 1;
+        TaskData taskData = getEntry(groupPosition).getValue().get(childPosition);
+        row.setTag(taskData);
+        TextView taskName = row.findViewById(R.id.TaskName);
+        TextView taskQty  = row.findViewById(R.id.TaskQuantity);
+        CheckBox taskCheckBox = row.findViewById(R.id.TaskCheckBox);
+        taskName.setText(taskData.name_);
+        taskQty.setText(taskData.qty_);
+        taskCheckBox.setChecked(taskData.completed_);
         int backgroundColor = Color.WHITE;
         int paintFlags = 0;
         if ( taskData.completed_ ){
             backgroundColor = Color.LTGRAY;
-            //transparency = 0.5f;
             paintFlags = Paint.STRIKE_THRU_TEXT_FLAG;
         }
         row.setBackgroundColor(backgroundColor);
-        row.setAlpha(transparency);
-        holder.taskName_.setPaintFlags(paintFlags);
-        holder.taskQty_.setPaintFlags(paintFlags);
+        taskName.setPaintFlags(paintFlags);
+        taskQty.setPaintFlags(paintFlags);
         return row;
     }
 
-    static class TaskHolder
-    {
-        CheckBox taskCheckBox_;
-        TextView taskName_;
-        TextView taskQty_;
+    @Override
+    public View getGroupView(int groupPosition, boolean isLastChild, View view,
+                             ViewGroup parent) {
+
+        //TaskGroupHolder viewHolder;
+        if (view == null) {
+            LayoutInflater inflater = (LayoutInflater) context_.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            view = inflater.inflate(R.layout.task_group_view, null);
+        }
+        TextView textView = view.findViewById(R.id.TaskGroupName);
+        textView.setText( (String) getGroup( groupPosition ) );
+
+        TextView completedView = view.findViewById(R.id.TaskGroupCompleted);
+        int totalCompleted = 0;
+        for ( TaskData data : getEntry(groupPosition).getValue()) {
+            if ( data.completed_ ) {
+                totalCompleted++;
+            }
+        }
+        String displayCompleted = totalCompleted + "/" + getChildrenCount( groupPosition );
+        completedView.setText( displayCompleted );
+        return view;
+    }
+
+    @Override
+    public boolean isChildSelectable(int groupPosition, int childPosition) {
+        return true;
+    }
+
+    @Override
+    public int getGroupCount() {
+        return data_.size();
+    }
+
+    @Override
+    public long getGroupId( int groupPosition ) {
+        return groupPosition;
+    }
+
+    @Override
+    public boolean hasStableIds(){
+        return true;
+    }
+
+    protected void refresh() {
+        //Hard refresh on every change
+        data_.clear();
+        for ( TaskData data : original_data_ ) {
+            data_.put( data.store_, new ArrayList<TaskData>() );
+        }
+        for ( TaskData data : original_data_ ) {
+            data_.get( data.store_ ).add( data );
+        }
+        notifyDataSetChanged();
     }
 }

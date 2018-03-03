@@ -3,15 +3,12 @@ package charles.courses;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
-import android.widget.ListView;
+import android.widget.ExpandableListView;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -23,7 +20,8 @@ public class MainActivity extends AppCompatActivity {
     public class ActionType { static final int NEW_TASK = 0; }
     public class NewTaskAction { static final int CREATED = 0, MODIFIED = 1, CANCELED = 2, DELETED = 3; }
     public static String TaskDataMarker = "TaskData";
-    protected ListView list_;
+    protected ExpandableListView list_;
+    protected TaskAdapter adapter_;
     protected ArrayList<TaskData> items_ = new ArrayList<>();
     protected String backupFile_ = "CoursesBackup.save";
 
@@ -31,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         //Reload data from previous executions
@@ -39,17 +37,19 @@ public class MainActivity extends AppCompatActivity {
 
         //Creation of an adapter linking the task list with the ListView
         list_=findViewById(R.id.VuePrinci);
-        TaskAdapter adapter=new TaskAdapter(MainActivity.this, R.layout.task_view, items_);
-        list_.setAdapter(adapter);
-        list_.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        adapter_ = new TaskAdapter(MainActivity.this, items_);
+        list_.setAdapter(adapter_);
+
+        list_.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // Get the selected item text from ListView
-                TaskData taskData = (TaskData) parent.getItemAtPosition(position);
+            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+                TaskData taskData = (TaskData) v.getTag();
                 taskData.completed_  = !taskData.completed_;
-                ((BaseAdapter)list_ .getAdapter()).notifyDataSetChanged();
+                adapter_.refresh();
+                return true;
             }
         });
+
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
                 if ( bundle != null) {
                     TaskData task = (TaskData) bundle.getSerializable(TaskDataMarker);
                     items_.add( task );
+                    adapter_.refresh();
                 }
             }
         }
@@ -138,6 +139,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         items_.removeAll(toRemove);
-        ((BaseAdapter)list_ .getAdapter()).notifyDataSetChanged();
+        adapter_.refresh();
     }
 }

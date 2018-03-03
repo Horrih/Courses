@@ -67,8 +67,22 @@ public class NewTaskActivity extends AppCompatActivity {
             //Intanciation of a TaskData object
             TaskData taskData = new TaskData();
             taskData.name_ = name;
+
+            //Input quantity
             AutoCompleteTextView input_qty = findViewById(R.id.NewTaskQuantityInput);
             taskData.qty_ = input_qty.getText().toString();
+
+            //Store
+            AutoCompleteTextView input_store = findViewById(R.id.NewTaskStoreInput);
+            taskData.store_ = input_store.getText().toString();
+            if ( taskData.store_.isEmpty() )
+                taskData.store_ = "General";
+
+            //Reason
+            AutoCompleteTextView input_reason = findViewById(R.id.NewTaskReasonInput);
+            taskData.reason_ = input_reason.getText().toString();
+            if ( taskData.reason_.isEmpty() )
+                taskData.reason_ = "General";
 
             //Serialization to send result back to MainActivity
             Bundle bundle = new Bundle();
