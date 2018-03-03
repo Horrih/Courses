@@ -2,13 +2,14 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/light"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
     <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:background="@color/light"
         tools:context="charles.courses.NewTaskActivity">
 
@@ -34,7 +35,9 @@
             android:textIsSelectable="false"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
+            <requestFocus/>
+        </AutoCompleteTextView>
 
         <AutoCompleteTextView
             android:id="@+id/NewTaskQuantityInput"
@@ -48,6 +51,7 @@
             android:ellipsize="start"
             android:gravity="center"
             android:hint="Quantité"
+            android:imeOptions="actionDone"
             android:padding="6dp"
             android:singleLine="true"
             android:textColorLink="@color/colorPrimary"
@@ -68,6 +72,7 @@
             android:ellipsize="start"
             android:gravity="center"
             android:hint="Rayon"
+            android:imeOptions="actionDone"
             android:padding="6dp"
             android:singleLine="true"
             android:textColorLink="@color/colorPrimary"
@@ -87,6 +92,7 @@
             android:ellipsize="start"
             android:gravity="center"
             android:hint="Pour"
+            android:imeOptions="actionDone"
             android:padding="6dp"
             android:singleLine="true"
             android:textColorLink="@color/colorPrimary"

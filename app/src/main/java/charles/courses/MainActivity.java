@@ -39,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
         list_=findViewById(R.id.VuePrinci);
         adapter_ = new TaskAdapter(MainActivity.this, items_);
         list_.setAdapter(adapter_);
+        for (int position = 0; position < adapter_.getGroupCount(); position++)
+            list_.expandGroup(position);
 
         list_.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
@@ -61,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
                     TaskData task = (TaskData) bundle.getSerializable(TaskDataMarker);
                     items_.add( task );
                     adapter_.refresh();
+                    list_.expandGroup( adapter_.getTaskGroup( task ) );
                 }
             }
         }

@@ -59,6 +59,19 @@ public class TaskAdapter extends BaseExpandableListAdapter {
         return getEntry(groupPosition).getValue().size();
     }
 
+    public int getTaskGroup( TaskData data ) {
+        int idGroup = 0;
+        for(String groupName : data_.keySet() ) {
+            if ( data.store_ == groupName ) {
+                return idGroup;
+            }
+            else {
+                idGroup++;
+            }
+        }
+        return 0;
+    }
+
     @Override
     public View getChildView(int groupPosition, final int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
         View row = convertView;

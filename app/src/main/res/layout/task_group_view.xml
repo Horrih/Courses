@@ -24,12 +24,12 @@
         android:id="@+id/TaskGroupCompleted"
         android:layout_width="74dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:gravity="center"
-        android:textSize="18sp"
+        android:layout_marginEnd="16dp"
+        android:gravity="center_vertical|end"
         android:textColor="@color/colorPrimary"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@+id/TaskGroupName"
         app:layout_constraintTop_toTopOf="@+id/TaskGroupName"
-        app:layout_constraintBottom_toBottomOf="@+id/TaskGroupName"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </android.support.constraint.ConstraintLayout>
