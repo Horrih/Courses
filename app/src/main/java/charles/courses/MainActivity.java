@@ -3,11 +3,13 @@ package charles.courses;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.ExpandableListView;
 
 import java.io.FileInputStream;
@@ -18,12 +20,15 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     public class ActionType { static final int NEW_TASK = 0; }
-    public class NewTaskAction { static final int CREATED = 0, MODIFIED = 1, CANCELED = 2, DELETED = 3; }
+    class NewTaskAction { static final int CREATED = 0, MODIFIED = 1, CANCELED = 2, DELETED = 3; }
     public static String TaskDataMarker = "TaskData";
     protected ExpandableListView list_;
-    protected TaskAdapter adapter_;
+    protected PageAdapter adapter_;
     protected ArrayList<TaskData> items_ = new ArrayList<>();
     protected String backupFile_ = "CoursesBackup.save";
+
+    ViewPager taskPager_;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,23 +40,51 @@ public class MainActivity extends AppCompatActivity {
         //Reload data from previous executions
         loadBackup();
 
-        //Creation of an adapter linking the task list with the ListView
-        list_=findViewById(R.id.VuePrinci);
-        adapter_ = new TaskAdapter(MainActivity.this, items_);
-        list_.setAdapter(adapter_);
-        for (int position = 0; position < adapter_.getGroupCount(); position++)
-            list_.expandGroup(position);
+        adapter_ = new PageAdapter(this.getSupportFragmentManager(), this, items_);
+        taskPager_ = findViewById(R.id.TaskPager);
+        taskPager_.setAdapter(adapter_);
 
-        list_.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+        // Watch for button clicks.
+        final ArrayList<Button> buttons = new ArrayList<>();
+
+        //Tab 1 : tasks by store
+        Button button = findViewById(R.id.StorePageButton);
+        button.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-                TaskData taskData = (TaskData) v.getTag();
-                taskData.completed_  = !taskData.completed_;
-                adapter_.refresh();
-                return true;
+            public void onClick(View v) {
+                taskPager_.setCurrentItem(0);
             }
         });
+        buttons.add( button );
 
+        //Tab 2 : tasks by reason
+        button = findViewById(R.id.ReasonPageButton);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                taskPager_.setCurrentItem(1);
+            }
+        });
+        buttons.add( button );
+
+        //Tab 3 : recurring tasks
+        button = findViewById(R.id.IncomingPageButton);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                taskPager_.setCurrentItem(2);
+            }
+        });
+        buttons.add( button );
+
+        taskPager_.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position ){
+                for ( int i = 0; i < buttons.size(); i++ ) {
+                    buttons.get( i ).setBackgroundResource( ( i == position ) ? R.drawable.tab_style_active : R.drawable.tab_style_inactive);
+                }
+            }
+        });
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -63,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
                     TaskData task = (TaskData) bundle.getSerializable(TaskDataMarker);
                     items_.add( task );
                     adapter_.refresh();
-                    list_.expandGroup( adapter_.getTaskGroup( task ) );
+                    //list_.expandGroup( adapter_.getTaskGroup( task ) );
                 }
             }
         }

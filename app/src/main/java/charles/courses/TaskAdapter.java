@@ -16,17 +16,19 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class TaskAdapter extends BaseExpandableListAdapter {
+    PageAdapter parentAdapter_;
     private Context context_;
     private ArrayList<TaskData> original_data_ = null;
     private TreeMap<String, ArrayList<TaskData>> data_ = new TreeMap<>();
 
-    TaskAdapter(Context context, ArrayList<TaskData> data) {
+    TaskAdapter(PageAdapter parentAdapter, Context context, ArrayList<TaskData> data) {
+        this.parentAdapter_ = parentAdapter;
         this.context_ = context;
         this.original_data_ = data;
         refresh();
     }
 
-    protected Map.Entry<String, ArrayList<TaskData>> getEntry( int n ) {
+    private Map.Entry<String, ArrayList<TaskData>> getEntry( int n ) {
         int i = 0;
         for(Map.Entry<String,ArrayList<TaskData>> entry : data_.entrySet() ) {
             if ( i == n ) {
@@ -62,7 +64,7 @@ public class TaskAdapter extends BaseExpandableListAdapter {
     public int getTaskGroup( TaskData data ) {
         int idGroup = 0;
         for(String groupName : data_.keySet() ) {
-            if ( data.store_ == groupName ) {
+            if ( data.store_.equals( groupName ) ) {
                 return idGroup;
             }
             else {
@@ -145,14 +147,18 @@ public class TaskAdapter extends BaseExpandableListAdapter {
         return true;
     }
 
-    protected void refresh() {
+    protected String getGroupString( TaskData data ) {
+        return data.store_;
+    }
+
+    void refresh() {
         //Hard refresh on every change
         data_.clear();
         for ( TaskData data : original_data_ ) {
-            data_.put( data.store_, new ArrayList<TaskData>() );
+            data_.put( getGroupString( data ), new ArrayList<TaskData>() );
         }
         for ( TaskData data : original_data_ ) {
-            data_.get( data.store_ ).add( data );
+            data_.get( getGroupString( data ) ).add( data );
         }
         notifyDataSetChanged();
     }
