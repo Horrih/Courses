@@ -23,6 +23,7 @@
             android:layout_height="match_parent"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:gravity="center"
+            android:paddingBottom="100dp"
             android:text="Aucune tâche en cours"
          />
 
