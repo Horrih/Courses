@@ -3,6 +3,7 @@ package charles.courses;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -17,6 +18,7 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
     public class ActionType { static final int NEW_TASK = 0; }
@@ -26,6 +28,8 @@ public class MainActivity extends AppCompatActivity {
     protected PageAdapter adapter_;
     protected ArrayList<TaskData> items_ = new ArrayList<>();
     protected String backupFile_ = "CoursesBackup.save";
+    final Handler periodicChecker_ = new Handler();
+    Runnable periodicCallback_;
 
     ViewPager taskPager_;
 
@@ -85,6 +89,30 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        periodicCallback_ = new Runnable() {
+            @Override
+            public void run() {
+                for ( TaskData task : items_ ) {
+                    if ( task.recurrence_ != null && task.recurrence_.nextAvailableDate().compareTo( new Date() ) < 0) {
+                        task.recurrence_.waitingNextOccurence_ = false;
+                        task.completed_ = false;
+                    }
+                }
+                adapter_.refresh();
+
+                //Check again in one minute's time
+                periodicChecker_.postDelayed( this, 60 * 1000 );
+            }
+        };
+    }
+
+    @Override
+    protected void onResume() {
+        //Launch periodic updates
+        periodicChecker_.post( periodicCallback_ );
+
+        super.onResume();
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -96,7 +124,6 @@ public class MainActivity extends AppCompatActivity {
                     TaskData task = (TaskData) bundle.getSerializable(TaskDataMarker);
                     items_.add( task );
                     adapter_.refresh();
-                    //list_.expandGroup( adapter_.getTaskGroup( task ) );
                 }
             }
         }
@@ -132,7 +159,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop()
     {
+        //Backup task data to a file
         backupData();
+
+        //We stop checking for updates
+        periodicChecker_.removeCallbacks(periodicCallback_);
+
+        //Parent method
         super.onStop();
     }
 
@@ -170,8 +203,13 @@ public class MainActivity extends AppCompatActivity {
     {
         ArrayList<TaskData> toRemove = new ArrayList<>();
         for ( TaskData task : items_) {
-            if ( task.completed_) {
-                toRemove.add( task );
+            if ( task.completed_  ) {
+                if ( task.recurrence_ != null ) {
+                    task.recurrence_.waitingNextOccurence_ = true;
+                    task.completed_ = false;
+                } else {
+                    toRemove.add( task );
+                }
             }
         }
         items_.removeAll(toRemove);

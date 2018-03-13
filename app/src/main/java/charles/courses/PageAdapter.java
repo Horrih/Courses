@@ -9,8 +9,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
+import android.widget.Toast;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TreeMap;
 
 class PageAdapter extends FragmentPagerAdapter {
     private ArrayList<TaskAdapter> adapters_ = new ArrayList<>();
@@ -44,6 +50,44 @@ class PageAdapter extends FragmentPagerAdapter {
                     @Override
                     protected String getGroupString( TaskData data ) {
                         return data.reason_;
+                    }
+                };
+            }
+            else if ( position == 2 ){
+                newAdapter = new TaskAdapter(this, context_, items_) {
+                    @Override
+                    protected String getGroupString( TaskData data ) {
+                        Date nextDate = data.recurrence_.nextAvailableDate();
+                        double days = ( nextDate.getTime() - new Date().getTime() ) / ( 1000 * 3600 * 24 );
+                        if ( days < 2 ) {
+                            return "Demain";
+                        } else if ( days < 8 ) {
+                            return "Dans la semaine";
+                        } else if ( days < 32 ) {
+                            return "Dans le mois";
+                        } else if ( days < 366 ) {
+                            return "Dans l'année";
+                        } else {
+                            return "Dans plus d'un an";
+                        }
+                    }
+
+                    @Override
+                    protected ArrayList<TaskData> getDisplayedTasks(){
+                        ArrayList<TaskData> toDisplay = new ArrayList<>();
+                        TreeMap<Date, TaskData> sortedTasks = new TreeMap<>();
+                        for ( TaskData data : original_data_ ) {
+                            //If a task is a recurring task,  we only display it if it is active
+                            if ( data.recurrence_ != null && !data.recurrence_.isActive() ) {
+                                sortedTasks.put( data.recurrence_.nextAvailableDate(), data );
+                            }
+                        }
+                        System.out.println( "Debut tri" );
+                        for ( TaskData value : sortedTasks.values() ) {
+                            System.out.println( "Tri Date : " + value.recurrence_.nextAvailableDate() );
+                            toDisplay.add( value );
+                        }
+                        return toDisplay;
                     }
                 };
             }
@@ -90,6 +134,17 @@ class PageAdapter extends FragmentPagerAdapter {
                     TaskData taskData = (TaskData) v.getTag();
                     taskData.completed_  = !taskData.completed_;
                     adapter_.parentAdapter_.refresh();
+                    if ( taskData.completed_ && taskData.recurrence_ != null) {
+                        Context context = v.getContext();
+
+                        taskData.recurrence_.lastCompletionDate_ = new Date();
+                        DateFormat dateFormat = new SimpleDateFormat("EEEE dd MMM yyyy", Locale.FRANCE);
+                        String date = dateFormat.format(taskData.recurrence_.nextAvailableDate());
+                        CharSequence text = "Cette tâche récurrente se réactivera automatiquement le " + date + " à minuit";
+                        int duration = Toast.LENGTH_LONG;
+                        Toast toast = Toast.makeText(context, text, duration);
+                        toast.show();
+                    }
                     return true;
                 }
             });

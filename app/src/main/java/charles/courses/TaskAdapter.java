@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,14 +13,12 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.TreeMap;
 
 public class TaskAdapter extends BaseExpandableListAdapter {
     PageAdapter parentAdapter_;
     private Context context_;
-    private ArrayList<TaskData> original_data_ = null;
-    private TreeMap<String, ArrayList<TaskData>> data_ = new TreeMap<>();
+    ArrayList<TaskData> original_data_ = null;
+    private ArrayList<Pair<String, ArrayList<TaskData>>> data_ = new ArrayList<>();
 
     TaskAdapter(PageAdapter parentAdapter, Context context, ArrayList<TaskData> data) {
         this.parentAdapter_ = parentAdapter;
@@ -28,27 +27,25 @@ public class TaskAdapter extends BaseExpandableListAdapter {
         refresh();
     }
 
-    private Map.Entry<String, ArrayList<TaskData>> getEntry( int n ) {
-        int i = 0;
-        for(Map.Entry<String,ArrayList<TaskData>> entry : data_.entrySet() ) {
-            if ( i == n ) {
-                return entry;
-            }
-            else {
-                i++;
-            }
-        }
-        return data_.firstEntry();
-    }
-
     @Override
     public Object getGroup(int groupPosition) {
-        return getEntry(groupPosition).getKey();
+        return data_.get( groupPosition ).first;
+    }
+
+    protected ArrayList<TaskData> getDisplayedTasks() {
+        ArrayList<TaskData> toDisplay = new ArrayList<>();
+        for ( TaskData data : original_data_ ) {
+            //If a task is a recurring task,  we only display it if it is active
+            if ( data.recurrence_ == null || data.recurrence_.isActive() ) {
+                toDisplay.add( data );
+            }
+        }
+        return toDisplay;
     }
 
     @Override
     public Object getChild( int groupPosition, int childPosition ) {
-        return getEntry(groupPosition).getValue().get(childPosition);
+        return data_.get(groupPosition).second.get(childPosition);
     }
 
     @Override
@@ -58,20 +55,7 @@ public class TaskAdapter extends BaseExpandableListAdapter {
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return getEntry(groupPosition).getValue().size();
-    }
-
-    public int getTaskGroup( TaskData data ) {
-        int idGroup = 0;
-        for(String groupName : data_.keySet() ) {
-            if ( data.store_.equals( groupName ) ) {
-                return idGroup;
-            }
-            else {
-                idGroup++;
-            }
-        }
-        return 0;
+        return data_.get(groupPosition).second.size();
     }
 
     @Override
@@ -83,7 +67,7 @@ public class TaskAdapter extends BaseExpandableListAdapter {
             row = inflater.inflate(R.layout.task_view, parent, false);
         }
 
-        TaskData taskData = getEntry(groupPosition).getValue().get(childPosition);
+        TaskData taskData = data_.get(groupPosition).second.get(childPosition);
         row.setTag(taskData);
         TextView taskName = row.findViewById(R.id.TaskName);
         TextView taskQty  = row.findViewById(R.id.TaskQuantity);
@@ -117,7 +101,7 @@ public class TaskAdapter extends BaseExpandableListAdapter {
 
         TextView completedView = view.findViewById(R.id.TaskGroupCompleted);
         int totalCompleted = 0;
-        for ( TaskData data : getEntry(groupPosition).getValue()) {
+        for ( TaskData data : data_.get(groupPosition).second ) {
             if ( data.completed_ ) {
                 totalCompleted++;
             }
@@ -154,11 +138,30 @@ public class TaskAdapter extends BaseExpandableListAdapter {
     void refresh() {
         //Hard refresh on every change
         data_.clear();
-        for ( TaskData data : original_data_ ) {
-            data_.put( getGroupString( data ), new ArrayList<TaskData>() );
-        }
-        for ( TaskData data : original_data_ ) {
-            data_.get( getGroupString( data ) ).add( data );
+
+        //Filter only tasks to display
+        ArrayList<TaskData> toDisplay = getDisplayedTasks();
+
+        //Create groups and children
+        for ( TaskData task : toDisplay ) {
+            Pair<String, ArrayList<TaskData>> foundGroup = null;
+            String groupName = getGroupString( task );
+
+            //Find existing group with same name
+            for ( Pair<String, ArrayList<TaskData>> pair : data_ ){
+                if ( pair.first == groupName ) {
+                    foundGroup = pair;
+                    break;
+                }
+            }
+            //If not create it
+            if ( foundGroup == null ) {
+                foundGroup = new Pair<>( groupName, new ArrayList<TaskData>() );
+                data_.add( foundGroup );
+            }
+
+            //Add the task to the group
+            foundGroup.second.add( task );
         }
         notifyDataSetChanged();
     }

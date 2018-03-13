@@ -41,10 +41,10 @@ public class NewTaskActivity extends AppCompatActivity {
         //Duration spinner
         Spinner durationSpinner = findViewById(R.id.RecurrenceDurationSpinner);
         ArrayList<Pair<String, Integer>> durationValues = new ArrayList<>();
-        durationValues.add(new Pair<>( "Jours", 1 ) );
-        durationValues.add(new Pair<>( "Semaines", 7 ) );
-        durationValues.add(new Pair<>( "Mois", 30 ) );
-        durationValues.add(new Pair<>( "Années", 365 ) );
+        durationValues.add(new Pair<>( "Jours"   , TaskData.RecurrenceData.days ) );
+        durationValues.add(new Pair<>( "Semaines", TaskData.RecurrenceData.weeks ) );
+        durationValues.add(new Pair<>( "Mois"    , TaskData.RecurrenceData.months ) );
+        durationValues.add(new Pair<>( "Années"  , TaskData.RecurrenceData.years ) );
         ArrayList<String> durationSpinnerValues = new ArrayList<>();
         for ( Pair<String, Integer> pair : durationValues ) {
             durationSpinnerValues.add( pair.first );
@@ -82,6 +82,15 @@ public class NewTaskActivity extends AppCompatActivity {
             taskData.reason_ = input_reason.getText().toString();
             if ( taskData.reason_.isEmpty() )
                 taskData.reason_ = "General";
+
+            Switch recurrenceSwitch = findViewById(R.id.EnableRecurrenceSwitch);
+            if ( recurrenceSwitch.isChecked() ) {
+                Spinner periodSpinner = findViewById(R.id.RecurrenceDurationSpinner);
+                Spinner numberSpinner = findViewById(R.id.RecurrenceNumberSpinner);
+                int period = durationStringToDays_.get( periodSpinner.getSelectedItem().toString() );
+                int number = Integer.parseInt(numberSpinner.getSelectedItem().toString());
+                taskData.recurrence_ = new TaskData.RecurrenceData( period, number );
+            }
 
             //Serialization to send result back to MainActivity
             Bundle bundle = new Bundle();
