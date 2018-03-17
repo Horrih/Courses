@@ -158,17 +158,17 @@
             android:tint="@color/colorPrimary"
             app:backgroundTint="@android:color/background_light"
             app:layout_constraintEnd_toEndOf="@+id/RecurrenceDurationSpinner"
-            app:layout_constraintTop_toTopOf="@+id/NewTaskCancelButton"
+            app:layout_constraintTop_toTopOf="@+id/TaskDeleteButton"
             app:srcCompat="@android:drawable/ic_input_add" />
 
         <android.support.design.widget.FloatingActionButton
-            android:id="@+id/NewTaskCancelButton"
+            android:id="@+id/TaskDeleteButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_marginBottom="12dp"
             android:layout_marginTop="44dp"
-            android:onClick="onCancel"
+            android:onClick="onDelete"
             android:tint="@color/colorAccent"
             app:backgroundTint="@android:color/background_light"
             app:layout_constraintBottom_toBottomOf="parent"

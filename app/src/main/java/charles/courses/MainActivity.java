@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
-import android.widget.ExpandableListView;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -21,14 +20,14 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
-    public class ActionType { static final int NEW_TASK = 0; }
-    class NewTaskAction { static final int CREATED = 0, MODIFIED = 1, CANCELED = 2, DELETED = 3; }
+    public class ActionType { static final int TASK_ACTIVITY = 0; }
+    class TaskAction { static final int CREATED = 0, MODIFIED = 1, CANCELED = 2, DELETED = 3; }
     public static String TaskDataMarker = "TaskData";
-    protected ExpandableListView list_;
-    protected PageAdapter adapter_;
+    PageAdapter adapter_;
     protected ArrayList<TaskData> items_ = new ArrayList<>();
     protected String backupFile_ = "CoursesBackup.save";
     final Handler periodicChecker_ = new Handler();
+    int taskBeingModified_ = 0;
     Runnable periodicCallback_;
 
     ViewPager taskPager_;
@@ -111,24 +110,39 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         //Launch periodic updates
         periodicChecker_.post( periodicCallback_ );
-
         super.onResume();
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Check which request we're responding to
-        if (requestCode == ActionType.NEW_TASK) {
-            if ( resultCode == NewTaskAction.CREATED ) {
+        if (requestCode == ActionType.TASK_ACTIVITY) {
+            if ( resultCode == TaskAction.CREATED || resultCode == TaskAction.MODIFIED) {
+                //Deserialize the result from the intent bundle
                 Bundle bundle = data.getExtras();
-                if ( bundle != null) {
-                    TaskData task = (TaskData) bundle.getSerializable(TaskDataMarker);
-                    items_.add( task );
-                    adapter_.refresh();
+                if ( bundle != null ) {
+                    TaskData decodedTask = (TaskData) bundle.getSerializable(TaskDataMarker);
+
+                    //Adding / modifying the task
+                    if ( resultCode == TaskAction.CREATED ) {
+                        items_.add( decodedTask );
+                    } else {
+                        items_.set( taskBeingModified_, decodedTask );
+                    }
                 }
+                else {
+                    System.out.println( "Error : activity action " + resultCode + " without bundled task" );
+                }
+             } else if ( resultCode == TaskAction.DELETED ) {
+                items_.remove(taskBeingModified_);
             }
+        }
+        //Refresh the views
+        if ( resultCode != TaskAction.CANCELED ) {
+            adapter_.refresh();
         }
     }
 
+    //Store all tasks to a file
     protected void backupData()
     {
         try (
@@ -194,8 +208,19 @@ public class MainActivity extends AppCompatActivity {
     //Called on NewTaskButton click
     public void onNewTask(View view)
     {
+        launchTaskActivity(null);
+    }
+
+    public void launchTaskActivity(TaskData taskData)
+    {
         Intent intent = new Intent(MainActivity.this, NewTaskActivity.class);
-        startActivityForResult(intent, ActionType.NEW_TASK);
+        if ( taskData != null ) {
+            Bundle bundle = new Bundle();
+            bundle.putSerializable(MainActivity.TaskDataMarker, taskData);
+            intent.putExtras(bundle);
+            taskBeingModified_ = items_.indexOf(taskData);
+        }
+        startActivityForResult(intent, ActionType.TASK_ACTIVITY);
     }
 
     //Called on ClearTaskButton : erases all Tasks that have been completed

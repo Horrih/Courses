@@ -15,13 +15,11 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 public class TaskAdapter extends BaseExpandableListAdapter {
-    PageAdapter parentAdapter_;
     private Context context_;
     ArrayList<TaskData> original_data_ = null;
     private ArrayList<Pair<String, ArrayList<TaskData>>> data_ = new ArrayList<>();
 
     TaskAdapter(PageAdapter parentAdapter, Context context, ArrayList<TaskData> data) {
-        this.parentAdapter_ = parentAdapter;
         this.context_ = context;
         this.original_data_ = data;
         refresh();
@@ -149,7 +147,7 @@ public class TaskAdapter extends BaseExpandableListAdapter {
 
             //Find existing group with same name
             for ( Pair<String, ArrayList<TaskData>> pair : data_ ){
-                if ( pair.first == groupName ) {
+                if ( pair.first.equals( groupName ) ) {
                     foundGroup = pair;
                     break;
                 }

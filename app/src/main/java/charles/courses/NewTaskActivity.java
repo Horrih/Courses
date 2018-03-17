@@ -1,6 +1,7 @@
 package charles.courses;
 
 import android.content.Intent;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Pair;
@@ -18,14 +19,15 @@ public class NewTaskActivity extends AppCompatActivity {
 
     protected Intent result_ = new Intent();
     protected HashMap<String, Integer> durationStringToDays_ = new HashMap<>();
+    protected TaskData decodedTask_ = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_task);
 
-        //By default, the new task is considered canceled
-        setResult( MainActivity.NewTaskAction.CANCELED, result_ );
+        //By default, the new task is considered canceled so that back button returns without doing anything
+        setResult( MainActivity.TaskAction.CANCELED, result_ );
 
         //Populating the recurrence spinner values
         //Number spinner
@@ -55,16 +57,60 @@ public class NewTaskActivity extends AppCompatActivity {
         durationSpinner.setAdapter(adapterDuration);
         durationSpinner.setSelection(1);
 
+        //We recover the task to modify if it exists
+        Bundle bundle = getIntent().getExtras();
+        if ( bundle != null ) {
+            decodedTask_ = (TaskData) bundle.getSerializable(MainActivity.TaskDataMarker);
+        }
+
+        //If there is a task to modify, we use the task data to initialize the input widgets
+        if ( decodedTask_ != null ) {
+            AutoCompleteTextView input_task = findViewById(R.id.NewTaskInput);
+            AutoCompleteTextView input_qty = findViewById(R.id.NewTaskQuantityInput);
+            AutoCompleteTextView input_store = findViewById(R.id.NewTaskStoreInput);
+            AutoCompleteTextView input_reason = findViewById(R.id.NewTaskReasonInput);
+            input_task  .setText( decodedTask_.name_ );
+            input_qty   .setText( decodedTask_.qty_ );
+            input_store .setText( decodedTask_.store_ );
+            input_reason.setText( decodedTask_.reason_ );
+
+            //Recurrence data
+            if ( decodedTask_.recurrence_ != null ) {
+                Switch recurrenceSwitch = findViewById(R.id.EnableRecurrenceSwitch);
+                recurrenceSwitch.setChecked( true );
+                int durationId = 0;
+                for ( int i = 0; i < durationValues.size(); i++ ) {
+                    if ( durationValues.get(i).second == decodedTask_.recurrence_.period_ ) {
+                        durationId = i;
+                        break;
+                    }
+                }
+                durationSpinner.setSelection(durationId);
+                numberSpinner.setSelection( decodedTask_.recurrence_.number_ - 1 );
+            }
+            setTitle( "Modifier tâche" );
+        }
+        else {
+            setTitle( "Nouvelle tâche" );
+            FloatingActionButton deleteButton = findViewById(R.id.TaskDeleteButton);
+            deleteButton.hide();
+        }
+
         //We gray out the recurrence part by default
         refreshRecurrenceDisplay();
     }
 
     public void onConfirm(View view) {
+        int action = decodedTask_ != null ? MainActivity.TaskAction.MODIFIED : MainActivity.TaskAction.CREATED;
+        TaskData taskData = decodedTask_;
+        if ( taskData == null ) {
+            taskData = new TaskData();
+        }
+
         AutoCompleteTextView input_task = findViewById(R.id.NewTaskInput);
         String name = input_task.getText().toString();
         if ( !name.isEmpty() ) {
-            //Intanciation of a TaskData object
-            TaskData taskData = new TaskData();
+            //Intanciation of a TaskData object if necessary
             taskData.name_ = name;
 
             //Input quantity
@@ -89,20 +135,25 @@ public class NewTaskActivity extends AppCompatActivity {
                 Spinner numberSpinner = findViewById(R.id.RecurrenceNumberSpinner);
                 int period = durationStringToDays_.get( periodSpinner.getSelectedItem().toString() );
                 int number = Integer.parseInt(numberSpinner.getSelectedItem().toString());
-                taskData.recurrence_ = new TaskData.RecurrenceData( period, number );
+                if ( taskData.recurrence_ == null ) {
+                    taskData.recurrence_ = new TaskData.RecurrenceData();
+                }
+                taskData.recurrence_.period_ = period;
+                taskData.recurrence_.number_ = number;
             }
 
             //Serialization to send result back to MainActivity
             Bundle bundle = new Bundle();
             bundle.putSerializable(MainActivity.TaskDataMarker, taskData);
             result_.putExtras(bundle);
-            setResult( MainActivity.NewTaskAction.CREATED, result_);
+            setResult( action, result_);
         }
         finish();
     }
 
-    public void onCancel(View view)
+    public void onDelete(View view)
     {
+        setResult( MainActivity.TaskAction.DELETED, result_ );
         finish();
     }
 
@@ -129,5 +180,4 @@ public class NewTaskActivity extends AppCompatActivity {
         numberSpinner.setEnabled(enabled);
         durationSpinner.setEnabled(enabled);
     }
-
 }

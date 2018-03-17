@@ -28,11 +28,6 @@ class  TaskData implements java.io.Serializable
             periods.add( years );
         }
 
-        RecurrenceData( int periodType, int number ) {
-            period_ = periodType;
-            number_ = number;
-        }
-
         Date nextAvailableDate() {
             Date now = new Date();
             Calendar calendar = Calendar.getInstance();
