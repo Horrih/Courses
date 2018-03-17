@@ -13,8 +13,8 @@ import java.util.Locale;
 import java.util.TreeMap;
 
 public class RecurrenceTaskAdapter extends TaskAdapter {
-    RecurrenceTaskAdapter(PageAdapter parentAdapter, Context context, ArrayList<TaskData> data) {
-        super( parentAdapter, context, data );
+    RecurrenceTaskAdapter(Context context, ArrayList<TaskData> data) {
+        super( context, data );
     }
 
     @Override

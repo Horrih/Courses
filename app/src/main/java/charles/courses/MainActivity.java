@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         //Reload data from previous executions
         loadBackup();
 
-        adapter_ = new PageAdapter(this.getSupportFragmentManager(), this, items_);
+        adapter_ = new PageAdapter(this, items_);
         taskPager_ = findViewById(R.id.TaskPager);
         taskPager_.setAdapter(adapter_);
 

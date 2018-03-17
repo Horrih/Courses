@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.CheckBox;
+import android.widget.ExpandableListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -17,9 +18,10 @@ import java.util.ArrayList;
 public class TaskAdapter extends BaseExpandableListAdapter {
     private Context context_;
     ArrayList<TaskData> original_data_ = null;
+    ExpandableListView listView_ = null;
     private ArrayList<Pair<String, ArrayList<TaskData>>> data_ = new ArrayList<>();
 
-    TaskAdapter(PageAdapter parentAdapter, Context context, ArrayList<TaskData> data) {
+    TaskAdapter(Context context, ArrayList<TaskData> data) {
         this.context_ = context;
         this.original_data_ = data;
         refresh();
@@ -86,8 +88,7 @@ public class TaskAdapter extends BaseExpandableListAdapter {
     }
 
     @Override
-    public View getGroupView(int groupPosition, boolean isLastChild, View view,
-                             ViewGroup parent) {
+    public View getGroupView(int groupPosition, boolean isLastChild, View view, ViewGroup parent) {
 
         //TaskGroupHolder viewHolder;
         if (view == null) {
@@ -134,6 +135,8 @@ public class TaskAdapter extends BaseExpandableListAdapter {
     }
 
     void refresh() {
+        ArrayList<Pair<String, ArrayList<TaskData>>> prevData = new ArrayList<>(data_);
+
         //Hard refresh on every change
         data_.clear();
 
@@ -161,6 +164,16 @@ public class TaskAdapter extends BaseExpandableListAdapter {
             //Add the task to the group
             foundGroup.second.add( task );
         }
+
+        //Expand groups of newly added elements
+        if ( listView_ != null ) {
+            for ( int i = 0; i < data_.size(); i++ ) {
+                if ( prevData.size() <= i || data_.get( i ).second.size() > prevData.get( i ).second.size() ) {
+                    listView_.expandGroup(i);
+                }
+            }
+        }
+
         notifyDataSetChanged();
     }
 }

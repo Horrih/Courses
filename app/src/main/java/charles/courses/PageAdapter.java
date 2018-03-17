@@ -21,16 +21,16 @@ import java.util.Locale;
 class PageAdapter extends FragmentPagerAdapter {
     ArrayList<TaskAdapter> adapters_ = new ArrayList<>();
 
-    PageAdapter(FragmentManager fm, Context context, ArrayList<TaskData> items) {
-        super(fm);
-        adapters_.add( new TaskAdapter(this, context, items) );
-        adapters_.add( new TaskAdapter(this, context, items) {
+    PageAdapter(MainActivity activity, ArrayList<TaskData> items) {
+        super(activity.getSupportFragmentManager());
+        adapters_.add( new TaskAdapter( activity, items ) );
+        adapters_.add( new TaskAdapter( activity, items ) {
             @Override
             protected String getGroupString( TaskData data ) {
                 return data.reason_;
             }
         });
-        adapters_.add( new RecurrenceTaskAdapter(this, context, items) );
+        adapters_.add( new RecurrenceTaskAdapter( activity, items ) );
     }
 
     void refresh() {
@@ -46,8 +46,7 @@ class PageAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        PageFragment fragment = PageFragment.newInstance(position);
-        return fragment;
+        return PageFragment.newInstance(position);
     }
 
     public static class PageFragment extends Fragment {
@@ -80,7 +79,13 @@ class PageAdapter extends FragmentPagerAdapter {
             TaskAdapter adapter = pageAdapter.adapters_.get( tabNumber_ );
             ExpandableListView listView = view.findViewById( R.id.TaskPage );
             listView.setAdapter(adapter);
+
+            //On startup, we expect the groups to be expanded
+            for ( int i = 0; i < adapter.getGroupCount(); i++ ) {
+                listView.expandGroup(i);
+            }
             listView.setEmptyView(view.findViewById(android.R.id.empty));
+            adapter.listView_ = listView;
 
             //Make short click complete task
             listView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
