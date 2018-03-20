@@ -4,13 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -47,47 +47,9 @@ public class MainActivity extends AppCompatActivity {
         taskPager_ = findViewById(R.id.TaskPager);
         taskPager_.setAdapter(adapter_);
 
-        // Watch for button clicks.
-        final ArrayList<Button> buttons = new ArrayList<>();
-
-        //Tab 1 : tasks by store
-        Button button = findViewById(R.id.StorePageButton);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                taskPager_.setCurrentItem(0);
-            }
-        });
-        buttons.add( button );
-
-        //Tab 2 : tasks by reason
-        button = findViewById(R.id.ReasonPageButton);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                taskPager_.setCurrentItem(1);
-            }
-        });
-        buttons.add( button );
-
-        //Tab 3 : recurring tasks
-        button = findViewById(R.id.IncomingPageButton);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                taskPager_.setCurrentItem(2);
-            }
-        });
-        buttons.add( button );
-
-        taskPager_.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position ){
-                for ( int i = 0; i < buttons.size(); i++ ) {
-                    buttons.get( i ).setBackgroundResource( ( i == position ) ? R.drawable.tab_style_active : R.drawable.tab_style_inactive);
-                }
-            }
-        });
+        // Give the TabLayout the ViewPager
+        TabLayout tabLayout = findViewById(R.id.sliding_tabs);
+        tabLayout.setupWithViewPager(taskPager_);
 
         periodicCallback_ = new Runnable() {
             @Override

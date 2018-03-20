@@ -40,6 +40,21 @@ class PageAdapter extends FragmentPagerAdapter {
     }
 
     @Override
+    public CharSequence getPageTitle(int position) {
+        // Generate title based on item position
+        switch (position) {
+            case 0:
+                return "Rayon";
+            case 1:
+                return "Thème";
+            case 2:
+                return "À Venir";
+            default:
+                return null;
+        }
+    }
+
+    @Override
     public int getCount() {
         return 3;
     }

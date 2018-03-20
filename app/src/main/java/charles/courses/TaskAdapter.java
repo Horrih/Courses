@@ -2,8 +2,9 @@ package charles.courses;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.Paint;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -70,20 +71,38 @@ public class TaskAdapter extends BaseExpandableListAdapter {
         TaskData taskData = data_.get(groupPosition).second.get(childPosition);
         row.setTag(taskData);
         TextView taskName = row.findViewById(R.id.TaskName);
-        TextView taskQty  = row.findViewById(R.id.TaskQuantity);
         CheckBox taskCheckBox = row.findViewById(R.id.TaskCheckBox);
-        taskName.setText(taskData.name_);
-        taskQty.setText(taskData.qty_);
-        taskCheckBox.setChecked(taskData.completed_);
-        int backgroundColor = Color.WHITE;
+        int nameColor = row.getResources().getColor(R.color.text);
+        int qtyColor = row.getResources().getColor(R.color.colorAccent);
         int paintFlags = 0;
         if ( taskData.completed_ ){
-            backgroundColor = Color.LTGRAY;
             paintFlags = Paint.STRIKE_THRU_TEXT_FLAG;
+            int gray = row.getResources().getColor(R.color.textGrayed);
+            nameColor = gray;
+            qtyColor = gray;
         }
-        row.setBackgroundColor(backgroundColor);
+
+        //Display the quantity in a different color
+        String displayText = taskData.name_;
+        int endName = displayText.length();
+        int startQty = endName;
+        if ( !taskData.qty_.isEmpty() ) {
+            String spaces = "    ";
+            String qty = taskData.qty_;
+
+            //We display a "x" symbol, e.g. Beers x12,  if the quantity is a simple number
+            if ( android.text.TextUtils.isDigitsOnly( qty ) ) {
+                qty = "x" + qty;
+            }
+            startQty = endName + spaces.length();
+            displayText += spaces + qty;
+        }
+        SpannableString ss =  new SpannableString( displayText );
+        ss.setSpan(new ForegroundColorSpan(nameColor), 0, endName, 0 );
+        ss.setSpan(new ForegroundColorSpan(qtyColor), startQty, displayText.length(), 0);
+        taskName.setText( ss );
+        taskCheckBox.setChecked(taskData.completed_);
         taskName.setPaintFlags(paintFlags);
-        taskQty.setPaintFlags(paintFlags);
         return row;
     }
 
@@ -96,7 +115,7 @@ public class TaskAdapter extends BaseExpandableListAdapter {
             view = inflater.inflate(R.layout.task_group_view, null);
         }
         TextView textView = view.findViewById(R.id.TaskGroupName);
-        textView.setText( (String) getGroup( groupPosition ) );
+        textView.setText( ((String) getGroup( groupPosition )).toUpperCase() );
 
         TextView completedView = view.findViewById(R.id.TaskGroupCompleted);
         int totalCompleted = 0;
@@ -134,6 +153,7 @@ public class TaskAdapter extends BaseExpandableListAdapter {
         return data.store_;
     }
 
+    //This functions recomputes all the data to display
     void refresh() {
         ArrayList<Pair<String, ArrayList<TaskData>>> prevData = new ArrayList<>(data_);
 

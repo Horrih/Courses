@@ -50,14 +50,14 @@ public class RecurrenceTaskAdapter extends TaskAdapter {
 
     @Override
     public View getChildView(int groupPosition, final int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-        //We will display the date instead of quantity
+        //We will display the next occurence date of the task in addition to the rest
         View view  = super.getChildView(groupPosition, childPosition, isLastChild, convertView, parent);
         TaskData task = (TaskData) view.getTag();
         DateFormat df = new SimpleDateFormat("dd/MM/yyyy", Locale.FRANCE );
         String nextDate = df.format( task.recurrence_.nextAvailableDate() );
 
         //Setting the value
-        TextView nextOccurrence = view.findViewById(R.id.TaskQuantity);
+        TextView nextOccurrence = view.findViewById(R.id.TaskExpiryDate);
         nextOccurrence.setText( nextDate );
         return view;
     }
