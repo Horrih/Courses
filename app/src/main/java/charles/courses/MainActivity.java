@@ -160,8 +160,10 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.clear_tasks ) {
+            clearTasks();
+        } else if ( id == R.id.share_tasks ){
+            System.out.println( "Share button clicked" );
         }
 
         return super.onOptionsItemSelected(item);
@@ -185,8 +187,8 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(intent, ActionType.TASK_ACTIVITY);
     }
 
-    //Called on ClearTaskButton : erases all Tasks that have been completed
-    public void onClearTask(View view)
+    //Erases all Tasks that have been completed
+    public void clearTasks()
     {
         ArrayList<TaskData> toRemove = new ArrayList<>();
         for ( TaskData task : items_) {

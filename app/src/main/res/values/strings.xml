@@ -2,4 +2,13 @@
     <string name="app_name">Courses</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_new_task">NewTaskActivity</string>
+    <string name="clear_tasks_menu">Actualiser</string>
+    <string name="share_tasks_menu">Partager</string>
+    <string name="task_name_hint">Nouvel article</string>
+    <string name="task_qty_hint">Quantité</string>
+    <string name="store_hint">Rayon</string>
+    <string name="reason_hint">Pour</string>
+    <string name="reminder">Rappels Automatiques</string>
+    <string name="after">Après</string>
+    <string name="no_tasks">Aucune tâche en cours</string>
 </resources>
