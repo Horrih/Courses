@@ -23,10 +23,12 @@ public class MainActivity extends AppCompatActivity {
     public class ActionType { static final int TASK_ACTIVITY = 0; }
     class TaskAction { static final int CREATED = 0, MODIFIED = 1, CANCELED = 2, DELETED = 3; }
     public static String TaskDataMarker = "TaskData";
+    public static String TaskHistoryMarker = "TaskHistory";
     PageAdapter adapter_;
     protected ArrayList<TaskData> items_ = new ArrayList<>();
     protected String backupFile_ = "CoursesBackup.save";
     final Handler periodicChecker_ = new Handler();
+    ArrayList<TaskData> history_ = new ArrayList<>();
     int taskBeingModified_ = 0;
     Runnable periodicCallback_;
 
@@ -90,6 +92,12 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         items_.set( taskBeingModified_, decodedTask );
                     }
+
+                    //Add the task to the history of tasks
+                    history_.add((TaskData) bundle.getSerializable(TaskDataMarker));
+                    if ( history_.size() > 100 ) {
+                        history_.remove( 0 );
+                    }
                 }
                 else {
                     System.out.println( "Error : activity action " + resultCode + " without bundled task" );
@@ -113,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
          )
         {
             out.writeObject(items_);
+            out.writeObject(history_);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -127,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
         )
         {
             items_ = (ArrayList<TaskData>) in.readObject();
+            history_ = (ArrayList<TaskData>) in.readObject();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -178,12 +188,13 @@ public class MainActivity extends AppCompatActivity {
     public void launchTaskActivity(TaskData taskData)
     {
         Intent intent = new Intent(MainActivity.this, NewTaskActivity.class);
+        Bundle bundle = new Bundle();
         if ( taskData != null ) {
-            Bundle bundle = new Bundle();
             bundle.putSerializable(MainActivity.TaskDataMarker, taskData);
-            intent.putExtras(bundle);
             taskBeingModified_ = items_.indexOf(taskData);
         }
+        bundle.putSerializable(MainActivity.TaskHistoryMarker, history_);
+        intent.putExtras(bundle);
         startActivityForResult(intent, ActionType.TASK_ACTIVITY);
     }
 

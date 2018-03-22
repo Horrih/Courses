@@ -14,14 +14,25 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class NewTaskActivity extends AppCompatActivity {
 
     protected Intent result_ = new Intent();
     protected HashMap<String, Integer> durationStringToDays_ = new HashMap<>();
     protected TaskData decodedTask_ = null;
+    static private ArrayList<Pair<String, Integer>> durationValues_ = new ArrayList<>();
+
+    static {
+        durationValues_.add(new Pair<>( "Jours"   , TaskData.RecurrenceData.days ) );
+        durationValues_.add(new Pair<>( "Semaines", TaskData.RecurrenceData.weeks ) );
+        durationValues_.add(new Pair<>( "Mois"    , TaskData.RecurrenceData.months ) );
+        durationValues_.add(new Pair<>( "Années"  , TaskData.RecurrenceData.years ) );
+    }
 
     @Override
+    @SuppressWarnings("unchecked")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_task);
@@ -30,6 +41,59 @@ public class NewTaskActivity extends AppCompatActivity {
         setResult( MainActivity.TaskAction.CANCELED, result_ );
 
         //Populating the recurrence spinner values
+        initSpinnerValues();
+
+        //We recover the task to modify if it exists
+        Bundle bundle = getIntent().getExtras();
+        if ( bundle != null ) {
+            decodedTask_ = (TaskData) bundle.getSerializable(MainActivity.TaskDataMarker);
+            initFromHistory( (ArrayList) bundle.getSerializable(MainActivity.TaskHistoryMarker) );
+        }
+
+        //If there is a task to modify, we use the task data to initialize the input widgets
+        if ( decodedTask_ != null ) {
+            setTitle( "Modifier tâche" );
+            initFromTask( decodedTask_ );
+        }
+        else {
+            setTitle( "Nouvelle tâche" );
+            FloatingActionButton deleteButton = findViewById(R.id.TaskDeleteButton);
+            deleteButton.hide();
+        }
+
+        //We gray out the recurrence part by default
+        refreshRecurrenceDisplay();
+    }
+
+    private void initFromTask( TaskData task ) {
+        AutoCompleteTextView input_task = findViewById(R.id.NewTaskInput);
+        AutoCompleteTextView input_qty = findViewById(R.id.NewTaskQuantityInput);
+        AutoCompleteTextView input_store = findViewById(R.id.NewTaskStoreInput);
+        AutoCompleteTextView input_reason = findViewById(R.id.NewTaskReasonInput);
+        input_task  .setText( task.name_ );
+        input_qty   .setText( task.qty_ );
+        input_store .setText( task.store_ );
+        input_reason.setText( task.reason_ );
+
+        //Recurrence data
+        if ( task.recurrence_ != null ) {
+            Switch recurrenceSwitch = findViewById(R.id.EnableRecurrenceSwitch);
+            Spinner durationSpinner = findViewById(R.id.RecurrenceDurationSpinner);
+            Spinner numberSpinner = findViewById(R.id.RecurrenceNumberSpinner);
+            recurrenceSwitch.setChecked( true );
+            int durationId = 0;
+            for ( int i = 0; i < durationValues_.size(); i++ ) {
+                if ( durationValues_.get(i).second == decodedTask_.recurrence_.period_ ) {
+                    durationId = i;
+                    break;
+                }
+            }
+            durationSpinner.setSelection(durationId);
+            numberSpinner.setSelection( decodedTask_.recurrence_.number_ - 1 );
+        }
+    }
+
+    private void initSpinnerValues() {
         //Number spinner
         Spinner numberSpinner = findViewById(R.id.RecurrenceNumberSpinner);
         ArrayList<String> numberSpinnerValues = new ArrayList<>();
@@ -42,13 +106,8 @@ public class NewTaskActivity extends AppCompatActivity {
 
         //Duration spinner
         Spinner durationSpinner = findViewById(R.id.RecurrenceDurationSpinner);
-        ArrayList<Pair<String, Integer>> durationValues = new ArrayList<>();
-        durationValues.add(new Pair<>( "Jours"   , TaskData.RecurrenceData.days ) );
-        durationValues.add(new Pair<>( "Semaines", TaskData.RecurrenceData.weeks ) );
-        durationValues.add(new Pair<>( "Mois"    , TaskData.RecurrenceData.months ) );
-        durationValues.add(new Pair<>( "Années"  , TaskData.RecurrenceData.years ) );
         ArrayList<String> durationSpinnerValues = new ArrayList<>();
-        for ( Pair<String, Integer> pair : durationValues ) {
+        for ( Pair<String, Integer> pair : durationValues_ ) {
             durationSpinnerValues.add( pair.first );
             durationStringToDays_.put( pair.first, pair.second );
         }
@@ -56,48 +115,29 @@ public class NewTaskActivity extends AppCompatActivity {
         adapterDuration.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         durationSpinner.setAdapter(adapterDuration);
         durationSpinner.setSelection(1);
+    }
 
-        //We recover the task to modify if it exists
-        Bundle bundle = getIntent().getExtras();
-        if ( bundle != null ) {
-            decodedTask_ = (TaskData) bundle.getSerializable(MainActivity.TaskDataMarker);
+    private void initFromHistory( ArrayList<TaskData> tasks ) {
+        Set<String> names = new TreeSet<>();
+        Set<String> stores = new TreeSet<>();
+        Set<String> reasons = new TreeSet<>();
+        for ( TaskData task : tasks ) {
+            names.add( task.name_ );
+            stores.add(task.store_);
+            reasons.add(task.reason_);
         }
-
-        //If there is a task to modify, we use the task data to initialize the input widgets
-        if ( decodedTask_ != null ) {
-            AutoCompleteTextView input_task = findViewById(R.id.NewTaskInput);
-            AutoCompleteTextView input_qty = findViewById(R.id.NewTaskQuantityInput);
-            AutoCompleteTextView input_store = findViewById(R.id.NewTaskStoreInput);
-            AutoCompleteTextView input_reason = findViewById(R.id.NewTaskReasonInput);
-            input_task  .setText( decodedTask_.name_ );
-            input_qty   .setText( decodedTask_.qty_ );
-            input_store .setText( decodedTask_.store_ );
-            input_reason.setText( decodedTask_.reason_ );
-
-            //Recurrence data
-            if ( decodedTask_.recurrence_ != null ) {
-                Switch recurrenceSwitch = findViewById(R.id.EnableRecurrenceSwitch);
-                recurrenceSwitch.setChecked( true );
-                int durationId = 0;
-                for ( int i = 0; i < durationValues.size(); i++ ) {
-                    if ( durationValues.get(i).second == decodedTask_.recurrence_.period_ ) {
-                        durationId = i;
-                        break;
-                    }
-                }
-                durationSpinner.setSelection(durationId);
-                numberSpinner.setSelection( decodedTask_.recurrence_.number_ - 1 );
-            }
-            setTitle( "Modifier tâche" );
-        }
-        else {
-            setTitle( "Nouvelle tâche" );
-            FloatingActionButton deleteButton = findViewById(R.id.TaskDeleteButton);
-            deleteButton.hide();
-        }
-
-        //We gray out the recurrence part by default
-        refreshRecurrenceDisplay();
+        ArrayAdapter<String> adapterNames   = new ArrayAdapter<>(this, R.layout.completion_item, new ArrayList<>(names));
+        ArrayAdapter<String> adapterStores  = new ArrayAdapter<>(this, R.layout.completion_item, new ArrayList<>(stores));
+        ArrayAdapter<String> adapterReasons = new ArrayAdapter<>(this, R.layout.completion_item, new ArrayList<>(reasons));
+        AutoCompleteTextView namesInput  = findViewById(R.id.NewTaskInput);
+        AutoCompleteTextView storesInput = findViewById(R.id.NewTaskStoreInput);
+        AutoCompleteTextView reasonInput = findViewById(R.id.NewTaskReasonInput);
+        namesInput.setAdapter(adapterNames);
+        storesInput.setAdapter(adapterStores);
+        reasonInput.setAdapter(adapterReasons);
+        namesInput.setThreshold(1);
+        storesInput.setThreshold(1);
+        reasonInput.setThreshold(1);
     }
 
     public void onConfirm(View view) {
