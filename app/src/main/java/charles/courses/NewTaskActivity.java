@@ -2,8 +2,10 @@ package charles.courses;
 
 import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Pair;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -36,6 +38,15 @@ public class NewTaskActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_task);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_24dp);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         //By default, the new task is considered canceled so that back button returns without doing anything
         setResult( MainActivity.TaskAction.CANCELED, result_ );
@@ -57,8 +68,8 @@ public class NewTaskActivity extends AppCompatActivity {
         }
         else {
             setTitle( "Nouvelle tâche" );
-            FloatingActionButton deleteButton = findViewById(R.id.TaskDeleteButton);
-            deleteButton.hide();
+            //FloatingActionButton deleteButton = findViewById(R.id.TaskDeleteButton);
+            //deleteButton.hide();
         }
 
         //We gray out the recurrence part by default

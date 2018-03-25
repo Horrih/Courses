@@ -10,5 +10,10 @@
     <string name="reason_hint">Pour</string>
     <string name="reminder">Rappels Automatiques</string>
     <string name="after">Après</string>
+    <string name="edit_button">Bouton Modifier</string>
+    <string name="delete_button">Bouton Supprimer</string>
     <string name="no_tasks">Aucune tâche en cours</string>
+    <string name="edit_lists_activity">Choix de la liste</string>
+    <string name="add_item_menu">Ajout d\'un nouvel élément</string>
+    <string name="validate_item_menu">Validation du choix de l\'élément</string>
 </resources>

@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="@color/background"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
-    <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/background"
+    tools:context="charles.courses.NewTaskActivity">
+
+    <include layout="@layout/toolbar" />
+
+    <android.support.constraint.ConstraintLayout
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        tools:context="charles.courses.NewTaskActivity">
+        android:layout_height="match_parent">
 
         <AutoCompleteTextView
             android:id="@+id/NewTaskInput"
@@ -145,32 +147,5 @@
             android:textSize="18sp"
             app:layout_constraintStart_toStartOf="@+id/ActivateRecurrenceTextView"
             app:layout_constraintTop_toBottomOf="@+id/ActivateRecurrenceTextView" />
-
-
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/NewTaskConfirmButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="52dp"
-            android:layout_marginBottom="10dp"
-            android:onClick="onConfirm"
-            android:scaleType="center"
-            android:tint="@color/colorAccent"
-            app:backgroundTint="@color/backgroundDark"
-            app:layout_constraintEnd_toEndOf="@+id/RecurrenceDurationSpinner"
-            app:layout_constraintTop_toBottomOf="@+id/RecurrenceDurationSpinner"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:srcCompat="@android:drawable/ic_input_add" />
-
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/TaskDeleteButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="onDelete"
-            android:tint="@color/colorAccent"
-            app:backgroundTint="@color/backgroundDark"
-            app:layout_constraintStart_toStartOf="@+id/RecurrenceTimeTextView"
-            app:layout_constraintTop_toTopOf="@+id/NewTaskConfirmButton"
-            app:srcCompat="@android:drawable/ic_delete" />
     </android.support.constraint.ConstraintLayout>
-</ScrollView>
+</android.support.design.widget.CoordinatorLayout>

@@ -1,0 +1,18 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="charles.courses.MainActivity">
+
+    <item
+        android:id="@+id/add_item"
+        android:icon="@android:drawable/ic_input_add"
+        android:title="@string/add_item_menu"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/validate_items"
+        android:checked="true"
+        android:icon="@drawable/ic_done_24dp"
+        android:title="@string/validate_item_menu"
+        app:showAsAction="ifRoom" />
+</menu>

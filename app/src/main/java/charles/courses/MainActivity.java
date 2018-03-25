@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
-    public class ActionType { static final int TASK_ACTIVITY = 0; }
+    public class ActionType { static final int TASK_ACTIVITY = 0, CHANGE_LISTS_ACTIVITY = 1; }
     class TaskAction { static final int CREATED = 0, MODIFIED = 1, CANCELED = 2, DELETED = 3; }
     public static String TaskDataMarker = "TaskData";
     public static String TaskHistoryMarker = "TaskHistory";
@@ -39,8 +39,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        initToolbar();
 
         //Reload data from previous executions
         loadBackup();
@@ -68,6 +67,26 @@ public class MainActivity extends AppCompatActivity {
                 periodicChecker_.postDelayed( this, 60 * 1000 );
             }
         };
+    }
+
+    void initToolbar() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationIcon(R.drawable.ic_dehaze_24dp);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, SelectItemActivity.class);
+                Bundle bundle = new Bundle();
+                SelectItemActivity.Items items = new SelectItemActivity.Items();
+                items.title_ = getResources().getString(R.string.edit_lists_activity);
+                items.values_.add( "Charcuterie" );
+                items.values_.add( "Fruits et Légumes" );
+                bundle.putSerializable(SelectItemActivity.ItemsMarker, items);
+                intent.putExtras(bundle);
+                startActivityForResult(intent, ActionType.CHANGE_LISTS_ACTIVITY);
+            }
+        });
     }
 
     @Override
