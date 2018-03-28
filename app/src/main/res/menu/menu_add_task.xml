@@ -1,18 +1,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main_menu"
     tools:context="charles.courses.MainActivity">
 
     <item
-        android:id="@+id/clear_tasks"
+        android:id="@+id/delete_task"
         android:icon="@drawable/ic_delete_24dp"
-        android:title="@string/clear_tasks_menu"
+        android:title="@string/delete_task_menu"
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/share_tasks"
-        android:icon="?attr/actionModeShareDrawable"
-        android:title="@string/share_tasks_menu"
+        android:id="@+id/validate_task"
+        android:checked="true"
+        android:icon="@drawable/ic_done_24dp"
+        android:title="@string/validate_task_menu"
         app:showAsAction="ifRoom" />
 </menu>

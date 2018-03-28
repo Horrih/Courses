@@ -16,4 +16,7 @@
     <string name="edit_lists_activity">Choix de la liste</string>
     <string name="add_item_menu">Ajout d\'un nouvel élément</string>
     <string name="validate_item_menu">Validation du choix de l\'élément</string>
+    <string name="validate_task_menu">Validation de la tâche</string>
+    <string name="delete_task_menu">Suppression de la tâche</string>
+    <string name="default_list_name">Liste n°1</string>
 </resources>

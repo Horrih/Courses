@@ -7,6 +7,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Pair;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -151,7 +153,7 @@ public class NewTaskActivity extends AppCompatActivity {
         reasonInput.setThreshold(1);
     }
 
-    public void onConfirm(View view) {
+    public void onConfirm() {
         int action = decodedTask_ != null ? MainActivity.TaskAction.MODIFIED : MainActivity.TaskAction.CREATED;
         TaskData taskData = decodedTask_;
         if ( taskData == null ) {
@@ -202,12 +204,6 @@ public class NewTaskActivity extends AppCompatActivity {
         finish();
     }
 
-    public void onDelete(View view)
-    {
-        setResult( MainActivity.TaskAction.DELETED, result_ );
-        finish();
-    }
-
     public void onActivateRecurrence(View view)
     {
         //No particular action : just refresh en color of the widgets
@@ -230,5 +226,33 @@ public class NewTaskActivity extends AppCompatActivity {
         durationTextView.setEnabled(enabled);
         numberSpinner.setEnabled(enabled);
         durationSpinner.setEnabled(enabled);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_add_task, menu);
+
+        //We hide the delete menu item if we are not modifying an existing task
+        if ( decodedTask_ == null ) {
+            MenuItem item = menu.findItem(R.id.delete_task);
+            item.setVisible(false);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.validate_task) {
+            onConfirm();
+        } else if ( id == R.id.delete_task ){
+            setResult( MainActivity.TaskAction.DELETED, result_ );
+            finish();
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

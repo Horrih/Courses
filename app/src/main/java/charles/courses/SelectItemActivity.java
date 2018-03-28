@@ -2,8 +2,6 @@ package charles.courses;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -21,18 +19,37 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.RadioButton;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 public class SelectItemActivity extends AppCompatActivity {
 
-    static class Items implements java.io.Serializable {
+    static class Input implements java.io.Serializable {
         String title_ = "";
         String selected_ = "";
         ArrayList<String> values_ = new ArrayList<>();
     }
 
-    static String ItemsMarker = "ItemsMarker";
-    Items items_ = new Items();
+    static class ValueChange implements Serializable {
+        ValueChange( String oldValue, String newValue ) {
+            oldValue_ = oldValue;
+            newValue_ = newValue;
+        }
+        String oldValue_ = "";
+        String newValue_ = "";
+    }
+
+    static class Result implements java.io.Serializable {
+        String selected_ = "";
+        ArrayList<String> addedItems_ = new ArrayList<>();
+        ArrayList<String> removedItems_ = new ArrayList<>();
+        ArrayList<ValueChange> modifiedItems_ = new ArrayList<>();
+    }
+
+    static String InputMarker = "InputMarker";
+    static String ResultMarker = "ResultMarker";
+    Input input_ = new Input();
+    Result result_ = new Result();
     SelectItemAdapter adapter_ = null;
     ListView listView_ = null;
 
@@ -50,33 +67,35 @@ public class SelectItemActivity extends AppCompatActivity {
             }
         });
 
-        //Initialize the return value
-        setResult( items_ );
-
         //Decode the choices
         Bundle bundle = getIntent().getExtras();
         if ( bundle != null ) {
-            Items decodedItems = (Items) bundle.getSerializable(ItemsMarker);
+            Input decodedItems = (Input) bundle.getSerializable(InputMarker);
             if ( decodedItems != null ) {
-                items_ = decodedItems;
+                input_ = decodedItems;
+                result_.selected_ = decodedItems.selected_;
+                setTitle( decodedItems.title_ );
             }
         }
-        setTitle( items_.title_ );
-
         //Display the choices
-        adapter_ = new SelectItemAdapter(this, items_.selected_, items_.values_);
+        adapter_ = new SelectItemAdapter(this, new ArrayList<String>() );
         listView_ = findViewById(R.id.ItemsList);
         listView_.setAdapter(adapter_);
+
+        //Initialize the return value
+        updateResult();
     }
 
     static class SelectItemAdapter extends ArrayAdapter<String> {
         ArrayList<String> items_;
-        String selectedItem_ = "";
+        SelectItemActivity activity_;
 
-        SelectItemAdapter(Context context, String selected, ArrayList<String> items) {
-            super(context, 0, items);
-            items_ = items;
-            selectedItem_ = selected;
+        SelectItemAdapter(SelectItemActivity activity, ArrayList<String> displayItems) {
+            super(activity, 0, displayItems );
+            activity_ = activity;
+            items_ = displayItems;
+            activity_.result_.selected_ = activity.input_.selected_;
+            items_.addAll( activity_.input_.values_);
         }
 
         @Override
@@ -88,7 +107,7 @@ public class SelectItemActivity extends AppCompatActivity {
         //Returns the selected id from the selected string
         private int getSelectedId() {
             for ( int i = 0; i < items_.size(); i++ ) {
-                if ( items_.get( i ).equals( selectedItem_  ) ) {
+                if ( items_.get( i ).equals( activity_.result_.selected_ ) ) {
                     return i;
                 }
             }
@@ -102,20 +121,18 @@ public class SelectItemActivity extends AppCompatActivity {
                 LayoutInflater inflater = LayoutInflater.from(getContext());
                 v = inflater.inflate(R.layout.select_item, null);
             }
+            final String item = getItem( position );
 
             //Check the appropriate selector
             final RadioButton selector = v.findViewById(R.id.item_selector);
-            final String item = getItem( position );
+            selector.setChecked( getSelectedId() == position );
             selector.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    selectedItem_ = item;
+                    activity_.result_.selected_ = item;
                     notifyDataSetChanged();
                 }
             });
-            boolean checked = getSelectedId() == position;
-            System.out.println( "Checked = " + checked  + " selected = " + getSelectedId() + " pos = " +position );
-            selector.setChecked( getSelectedId() == position );
 
             //Display the item
             final EditText text = v.findViewById(R.id.item_text);
@@ -133,7 +150,7 @@ public class SelectItemActivity extends AppCompatActivity {
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
                     items_.set( position, s.toString() );
-                    selectedItem_ = s.toString();
+                    activity_.result_.selected_ = s.toString();
                 }
             });
             if ( item.isEmpty() ) {
@@ -154,7 +171,14 @@ public class SelectItemActivity extends AppCompatActivity {
             remove_button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    //Remove it from the display list
                     items_.remove(position);
+
+                    //Remove it from the original list and add it to the removed ones in the result
+                    if ( activity_.input_.values_.size() > position ) {
+                        activity_.result_.removedItems_.add( activity_.input_.values_.get( position ));
+                        activity_.input_.values_.remove(position);
+                    }
                     notifyDataSetChanged();
                 }
             });
@@ -173,42 +197,43 @@ public class SelectItemActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_select_item, menu);
-        for(int i = 0; i < menu.size(); i++){
-            Drawable drawable = menu.getItem(i).getIcon();
-            if(drawable != null) {
-                drawable.mutate();
-                drawable.setColorFilter(getResources().getColor(R.color.background), PorterDuff.Mode.SRC_ATOP);
-            }
-        }
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
         if (id == R.id.add_item ) {
-            items_.values_.add( "" );
-            adapter_.selectedItem_ = "";
+            adapter_.items_.add( "" );
+            result_.selected_ = "";
             adapter_.notifyDataSetChanged();
         } else if ( id == R.id.validate_items ){
-            setResult( items_ );
+            updateResult();
             finish();
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    void setResult( Items items ) {
+    void updateResult() {
+        //Compute the modified and added list
+        for ( int i = 0; i < input_.values_.size(); i++ ) {
+            String oldItem = input_.values_.get( i );
+            String newItem = adapter_.getItem(i);
+            if ( !oldItem.equals(newItem) ) {
+                result_.modifiedItems_.add( new ValueChange( oldItem, newItem ) );
+            }
+        }
+
+        for ( int i = input_.values_.size(); i < adapter_.getCount(); i++ ) {
+            result_.addedItems_.add( adapter_.getItem(i));
+        }
+
         //Serialization to send result back to MainActivity
         Bundle bundle = new Bundle();
-        bundle.putSerializable(ItemsMarker, items);
-        Intent result = new Intent();
-        result.putExtras(bundle);
-        setResult( 0, result);
+        bundle.putSerializable(ResultMarker, result_);
+        Intent intent = new Intent();
+        intent.putExtras(bundle);
+        setResult( 0, intent);
     }
 }

@@ -12,6 +12,7 @@ import android.widget.AdapterView;
 import android.widget.ExpandableListView;
 import android.widget.Toast;
 
+import java.lang.reflect.Array;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -20,20 +21,30 @@ import java.util.Locale;
 
 class PageAdapter extends FragmentPagerAdapter {
     ArrayList<TaskAdapter> adapters_ = new ArrayList<>();
+    private ArrayList<TaskData> tasks_ = new ArrayList<>();
+    private MainActivity activity_;
 
-    PageAdapter(MainActivity activity, ArrayList<TaskData> items) {
+    PageAdapter(MainActivity activity) {
         super(activity.getSupportFragmentManager());
-        adapters_.add( new TaskAdapter( activity, items ) );
-        adapters_.add( new TaskAdapter( activity, items ) {
+        activity_ = activity;
+        updateTasks();
+        adapters_.add( new TaskAdapter( activity, tasks_ ) );
+        adapters_.add( new TaskAdapter( activity, tasks_ ) {
             @Override
             protected String getGroupString( TaskData data ) {
                 return data.reason_;
             }
         });
-        adapters_.add( new RecurrenceTaskAdapter( activity, items ) );
+        adapters_.add( new RecurrenceTaskAdapter( activity, tasks_ ) );
+    }
+
+    private void updateTasks() {
+        tasks_.clear();
+        tasks_.addAll( activity_.getTasks() );
     }
 
     void refresh() {
+        updateTasks();
         for ( TaskAdapter adapter : adapters_ ) {
             adapter.refresh();
         }
@@ -108,7 +119,7 @@ class PageAdapter extends FragmentPagerAdapter {
                 public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
                     TaskData taskData = (TaskData) v.getTag();
                     taskData.completed_  = !taskData.completed_;
-                    pageAdapter.refresh();
+                    ((MainActivity)getContext()).taskUpdate();
                     if ( taskData.completed_ && taskData.recurrence_ != null) {
                         Context context = v.getContext();
 
