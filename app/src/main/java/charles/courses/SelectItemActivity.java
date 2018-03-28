@@ -52,6 +52,7 @@ public class SelectItemActivity extends AppCompatActivity {
     Result result_ = new Result();
     SelectItemAdapter adapter_ = null;
     ListView listView_ = null;
+    EditText textEdited_ = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +90,7 @@ public class SelectItemActivity extends AppCompatActivity {
     static class SelectItemAdapter extends ArrayAdapter<String> {
         ArrayList<String> items_;
         SelectItemActivity activity_;
+        EditText editedText_;
 
         SelectItemAdapter(SelectItemActivity activity, ArrayList<String> displayItems) {
             super(activity, 0, displayItems );
@@ -190,6 +192,7 @@ public class SelectItemActivity extends AppCompatActivity {
             InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
             item.setSelection(item.getText().length());
+            editedText_ = item;
         }
     }
 
@@ -235,5 +238,15 @@ public class SelectItemActivity extends AppCompatActivity {
         Intent intent = new Intent();
         intent.putExtras(bundle);
         setResult( 0, intent);
+    }
+
+    @Override
+    protected void onPause() {
+        //Hide the keyboard if there is an edit text begin edited
+        if ( adapter_.editedText_ != null ){
+            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(adapter_.editedText_.getWindowToken(), 0);
+        }
+        super.onPause();
     }
 }
