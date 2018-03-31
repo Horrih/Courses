@@ -2,6 +2,8 @@
 <android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -24,6 +26,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
+        android:minWidth="10dp"
         android:textCursorDrawable="@drawable/black_cursor"
         android:inputType="text"
         android:imeOptions="actionDone"
@@ -41,7 +44,7 @@
         android:tint="@color/colorAccent"
         app:layout_constraintRight_toLeftOf="@+id/remove_item"
         app:layout_constraintTop_toTopOf="@+id/remove_item"
-        android:src="@drawable/ic_edit_24dp" />
+        app:srcCompat="@drawable/ic_edit_24dp" />
 
     <ImageButton
         android:id="@+id/remove_item"
@@ -52,7 +55,7 @@
         android:background="@null"
         android:contentDescription="@string/delete_button"
         android:tint="@color/colorAccent"
-        android:src="@drawable/ic_clear_24dp"
+        app:srcCompat="@drawable/ic_clear_24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintRight_toRightOf="parent"

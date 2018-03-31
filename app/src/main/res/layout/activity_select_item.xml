@@ -12,6 +12,8 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:id="@+id/ItemsList"
+        android:descendantFocusability="afterDescendants"
+        android:transcriptMode="alwaysScroll"
         android:choiceMode="none"
         android:divider="@null"
         android:layout_width="match_parent"

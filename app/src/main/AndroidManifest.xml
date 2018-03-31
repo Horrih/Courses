@@ -20,10 +20,12 @@
         </activity>
         <activity
             android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateVisible"
             android:name=".NewTaskActivity">
         </activity>
         <activity
             android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustResize"
             android:name=".SelectItemActivity">
         </activity>
     </application>
