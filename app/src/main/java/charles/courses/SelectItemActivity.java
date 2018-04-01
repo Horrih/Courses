@@ -11,15 +11,19 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
+import android.widget.TextView;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -150,6 +154,8 @@ public class SelectItemActivity extends AppCompatActivity {
                 text_         = itemView.findViewById(R.id.item_text);
                 editButton_   = itemView.findViewById(R.id.edit_item);
                 removeButton_ = itemView.findViewById(R.id.remove_item);
+
+                //Update the data on text changed
                 text_.addTextChangedListener( new TextWatcher() {
                     @Override public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {}
 
@@ -160,6 +166,45 @@ public class SelectItemActivity extends AppCompatActivity {
 
                     @Override public void afterTextChanged(Editable editable) {}
                 });
+
+                //Validate the choice if the text is clicked while not being edited
+                text_.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if ( !v.isFocusableInTouchMode() ) {
+                            selected_ = getAdapterPosition();
+                            finish();
+                        }
+                    }
+                });
+
+                //Clear the focus of the edit text on action done pressed on keyboard
+                text_.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                    @Override
+
+                    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                        if( actionId == EditorInfo.IME_ACTION_DONE){
+                            text_.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    text_.clearFocus();
+                                }
+                            });
+                        }
+                        return false;
+                    }
+                });
+                //Make the text unfocusable when focus is lost : we need to press the edit button agian
+                text_.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                    @Override
+                    public void onFocusChange(View v, boolean hasFocus) {
+                        if ( !hasFocus ) {
+                            v.setFocusableInTouchMode(false);
+                        }
+                    }
+                });
+
+                //Select the position and finish activity if an item is selected
                 selector_.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -167,6 +212,8 @@ public class SelectItemActivity extends AppCompatActivity {
                         finish();
                     }
                 });
+
+                //Remove the item on button pressed
                 removeButton_.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -179,7 +226,7 @@ public class SelectItemActivity extends AppCompatActivity {
                         items_.remove(positionRemoved);
                         notifyItemRemoved(positionRemoved);
 
-                        //Update the selected item if it was after, after a delay to have the remove item animation
+                        //Update the selected item if it was after the deleted item, after a delay to enable the remove item animation
                         if ( positionRemoved <= selected_ && selected_ > 0 ) {
                             listView_.postDelayed(new Runnable() {
                                 @Override
@@ -195,9 +242,10 @@ public class SelectItemActivity extends AppCompatActivity {
                 editButton_.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        InputMethodManager mgr = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                        text_.setFocusableInTouchMode(true);
                         text_.requestFocus();
                         text_.setSelection( text_.getText().toString().length() );
+                        InputMethodManager mgr = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                         mgr.showSoftInput(text_, InputMethodManager.SHOW_IMPLICIT);
                     }
                 });
