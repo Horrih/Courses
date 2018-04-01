@@ -2,6 +2,7 @@ package charles.courses;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -21,7 +22,6 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.RadioButton;
 import android.widget.TextView;
 
 import java.io.Serializable;
@@ -112,7 +112,9 @@ public class SelectItemActivity extends AppCompatActivity {
         for ( int i = input_.values_.size(); i < adapter_.getItemCount(); i++ ) {
             result_.addedItems_.add( adapter_.items_.get(i));
         }
-        result_.selected_ = adapter_.items_.get( adapter_.selected_ );
+        if ( adapter_.getItemCount() > 0 ) {
+            result_.selected_ = adapter_.items_.get( adapter_.selected_ );
+        }
 
         //Serialization to send result back to MainActivity
         Bundle bundle = new Bundle();
@@ -144,13 +146,11 @@ public class SelectItemActivity extends AppCompatActivity {
         int selected_ = 0;
 
         class SelectItemViewHolder extends RecyclerView.ViewHolder{
-            RadioButton selector_;
             EditText text_;
             ImageButton editButton_;
             ImageButton removeButton_;
             SelectItemViewHolder(final View itemView) {
                 super(itemView);
-                selector_     = itemView.findViewById(R.id.item_selector);
                 text_         = itemView.findViewById(R.id.item_text);
                 editButton_   = itemView.findViewById(R.id.edit_item);
                 removeButton_ = itemView.findViewById(R.id.remove_item);
@@ -201,15 +201,6 @@ public class SelectItemActivity extends AppCompatActivity {
                         if ( !hasFocus ) {
                             v.setFocusableInTouchMode(false);
                         }
-                    }
-                });
-
-                //Select the position and finish activity if an item is selected
-                selector_.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        selected_ = getAdapterPosition();
-                        finish();
                     }
                 });
 
@@ -276,7 +267,10 @@ public class SelectItemActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull final SelectItemViewHolder holder, int position) {
             holder.text_.setText(items_.get(position));
-            holder.selector_.setChecked( position == selected_ );
+            boolean isSelected = selected_ == position;
+            int colorId = isSelected ? R.color.colorAccent : R.color.text;
+            holder.text_.setTextColor(getResources().getColor(colorId));
+            holder.text_.setTypeface(null, ( isSelected ? Typeface.BOLD : Typeface.NORMAL ) );
         }
 
         void newItem() {
@@ -295,7 +289,6 @@ public class SelectItemActivity extends AppCompatActivity {
                         @Override public void run() {
                             int firstVisible = layout.findFirstVisibleItemPosition();
                             int lastVisible = layout.findLastVisibleItemPosition();
-                            System.out.println("First " + firstVisible + " last " + lastVisible + " pour position " + lastPosition);
                             View view = listView_.getChildAt(lastVisible - firstVisible);
                             view.findViewById(R.id.edit_item).callOnClick();
                         }

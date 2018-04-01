@@ -7,31 +7,21 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <RadioButton
-        android:id="@+id/item_selector"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="4dp"
-        android:gravity="center_vertical"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <EditText
         android:id="@+id/item_text"
         android:background="@color/background"
         android:labelFor="@id/item_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="30dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         android:focusableInTouchMode="false"
         android:minWidth="10dp"
         android:textCursorDrawable="@drawable/black_cursor"
-        android:inputType="text"
+        android:inputType="textCapSentences|textNoSuggestions"
         android:imeOptions="actionDone"
-        app:layout_constraintStart_toEndOf="@+id/item_selector"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/edit_item"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>

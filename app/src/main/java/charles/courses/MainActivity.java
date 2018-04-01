@@ -140,7 +140,13 @@ public class MainActivity extends AppCompatActivity {
                 for ( String added: result.addedItems_ ) {
                     storage_.newList( added );
                 }
-                currentList_ = result.selected_;
+                //Update the selected list
+                if ( storage_.getLists().size() > 1 ) {
+                    currentList_ = result.selected_;
+                } else {
+                    //Fail safe in case no lists are remaining : we reuse the default use
+                    currentList_ = storage_.getLists().get(0);
+                }
                 taskUpdate();
             } else {
                 System.out.println( "Error : activity action " + resultCode + " without bundled task" );
