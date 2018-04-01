@@ -8,11 +8,4 @@
         android:icon="@drawable/ic_add_24dp"
         android:title="@string/add_item_menu"
         app:showAsAction="ifRoom" />
-
-    <item
-        android:id="@+id/validate_items"
-        android:checked="true"
-        android:icon="@drawable/ic_done_24dp"
-        android:title="@string/validate_item_menu"
-        app:showAsAction="ifRoom" />
 </menu>
