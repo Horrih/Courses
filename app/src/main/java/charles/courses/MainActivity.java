@@ -11,6 +11,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -270,8 +271,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void taskUpdate() {
-        //Titre : affichage du nom de la liste courante
+        //Title : display current task
         setTitle(currentList_);
+
+        //Update completed counter
+        ArrayList<TaskData> displayedTasks = adapter_.adapters_.get(0).getDisplayedTasks();
+        int nbCompleted = 0;
+        int nbTasks = displayedTasks.size ();
+        for ( TaskData task : displayedTasks ) {
+            if ( task.completed_ ) {
+                nbCompleted++;
+            }
+        }
+        int percentage = 100;
+        if ( nbTasks > 0 ) {
+            percentage = (100 * nbCompleted) / nbTasks;
+        }
+
+        TextView counterView = findViewById(R.id.taskCounterView);
+        String display = nbCompleted + "/" + nbTasks + "(" + percentage + "%)";
+        counterView.setText( display );
 
         //Update clear menu button : hide if no tasks to clear
         invalidateOptionsMenu();

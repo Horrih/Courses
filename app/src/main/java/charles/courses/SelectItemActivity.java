@@ -218,11 +218,11 @@ public class SelectItemActivity extends AppCompatActivity {
                         notifyItemRemoved(positionRemoved);
 
                         //Update the selected item if it was after the deleted item, after a delay to enable the remove item animation
-                        if ( positionRemoved <= selected_ && selected_ > 0 ) {
+                        if ( positionRemoved <= selected_ ) {
                             listView_.postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
-                                    selected_ = selected_ - 1;
+                                    selected_ = Math.max( selected_ - 1, 0 );
                                     notifyItemChanged(selected_);
                                 }
                             }, 200);
