@@ -274,29 +274,29 @@ public class MainActivity extends AppCompatActivity {
         //Title : display current task
         setTitle(currentList_);
 
-        //Update completed counter
-        ArrayList<TaskData> displayedTasks = adapter_.adapters_.get(0).getDisplayedTasks();
-        int nbCompleted = 0;
-        int nbTasks = displayedTasks.size ();
-        for ( TaskData task : displayedTasks ) {
-            if ( task.completed_ ) {
-                nbCompleted++;
-            }
-        }
-        int percentage = 100;
-        if ( nbTasks > 0 ) {
-            percentage = (100 * nbCompleted) / nbTasks;
-        }
-
-        TextView counterView = findViewById(R.id.taskCounterView);
-        String display = nbCompleted + "/" + nbTasks + "(" + percentage + "%)";
-        counterView.setText( display );
+        //Update task lists
+        adapter_.refresh();
 
         //Update clear menu button : hide if no tasks to clear
         invalidateOptionsMenu();
 
-        //Update task lists
-        adapter_.refresh();
+        //Update completed counter
+        ArrayList<TaskData> displayedTasks = adapter_.adapters_.get(0).getDisplayedTasks();
+        int nbTasks = displayedTasks.size ();
+        TextView counterView = findViewById(R.id.taskCounterView);
+        String display = "";
+        if ( nbTasks > 0 ) {
+            int nbCompleted = 0;
+            for ( TaskData task : displayedTasks ) {
+                if ( task.completed_ ) {
+                    nbCompleted++;
+                }
+            }
+            int percentage = 100;
+            percentage = (100 * nbCompleted) / nbTasks;
+            display = nbCompleted + "/" + nbTasks + "(" + percentage + "%)";
+        }
+        counterView.setText( display );
     }
 
     //Returns the tasks of the current list
