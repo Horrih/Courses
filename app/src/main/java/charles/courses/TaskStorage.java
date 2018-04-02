@@ -28,8 +28,6 @@ class TaskStorage implements Serializable{
     }
 
     ArrayList<TaskData> getTasks(String listName) {
-
-        System.out.println( "Acces a la liste " + listName);
         ArrayList<TaskData> active = null;
         Tasks tasks = storage_.get( listName );
         if ( tasks != null ) {

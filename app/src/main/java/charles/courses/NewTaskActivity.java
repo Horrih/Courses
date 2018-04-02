@@ -70,12 +70,15 @@ public class NewTaskActivity extends AppCompatActivity {
         }
         else {
             setTitle( "Nouvelle tâche" );
-            //FloatingActionButton deleteButton = findViewById(R.id.TaskDeleteButton);
-            //deleteButton.hide();
         }
 
-        //We gray out the recurrence part by default
-        refreshRecurrenceDisplay();
+        //We reload the state of the recurrence widgets, after the state has been reloaded in case of orientation change
+        toolbar.post(new Runnable() {
+            @Override
+            public void run() {
+                refreshRecurrenceDisplay()  ;
+            }
+        });
     }
 
     private void initFromTask( TaskData task ) {
