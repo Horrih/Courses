@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -230,6 +231,17 @@ public class MainActivity extends AppCompatActivity {
             clearTasks();
         } else if ( id == R.id.share_tasks ){
             System.out.println( "Share button clicked" );
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("text/plain");
+            String text = "Liste '" + currentList_ + "' :";
+            text += adapter_.adapters_.get( 0 ).toText();
+            shareIntent.putExtra(Intent.EXTRA_TEXT, text );
+            try {
+                startActivity(shareIntent);
+            } catch (android.content.ActivityNotFoundException ex) {
+                Toast toast = Toast.makeText(this, "Pas d'application disponible", Toast.LENGTH_LONG);
+                toast.show();
+            }
         }
         return super.onOptionsItemSelected(item);
     }

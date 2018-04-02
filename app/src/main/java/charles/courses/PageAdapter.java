@@ -127,8 +127,7 @@ class PageAdapter extends FragmentPagerAdapter {
                         DateFormat dateFormat = new SimpleDateFormat("EEEE dd MMM yyyy", Locale.FRANCE);
                         String date = dateFormat.format(taskData.recurrence_.nextAvailableDate());
                         CharSequence text = "Cette tâche récurrente se réactivera automatiquement le " + date + " à minuit";
-                        int duration = Toast.LENGTH_LONG;
-                        Toast toast = Toast.makeText(context, text, duration);
+                        Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
                         toast.show();
                     }
                     return true;

@@ -196,4 +196,19 @@ public class TaskAdapter extends BaseExpandableListAdapter {
 
         notifyDataSetChanged();
     }
+
+    String toText() {
+        String result = "";
+        for ( int group = 0; group < getGroupCount(); group++ ) {
+            result += "\n- " + getGroup(group);
+            for ( int item = 0; item < getChildrenCount(group); item++ ) {
+                TaskData data = (TaskData) getChild(group, item);
+                result += "\n    * " + data.name_;
+                if ( !data.qty_.isEmpty() ) {
+                    result += " (" + data.qty_ + ")";
+                }
+            }
+        }
+        return result;
+    }
 }
