@@ -17,7 +17,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 public class TaskAdapter extends BaseExpandableListAdapter {
-    private Context context_;
+    protected Context context_;
     ArrayList<TaskData> original_data_ = null;
     ExpandableListView listView_ = null;
     private ArrayList<Pair<String, ArrayList<TaskData>>> data_ = new ArrayList<>();

@@ -26,13 +26,9 @@ public class NewTaskActivity extends AppCompatActivity {
     protected Intent result_ = new Intent();
     protected HashMap<String, Integer> durationStringToDays_ = new HashMap<>();
     protected TaskData decodedTask_ = null;
-    static private ArrayList<Pair<String, Integer>> durationValues_ = new ArrayList<>();
+    private ArrayList<Pair<String, Integer>> durationValues_ = new ArrayList<>();
 
     static {
-        durationValues_.add(new Pair<>( "Jours"   , TaskData.RecurrenceData.days ) );
-        durationValues_.add(new Pair<>( "Semaines", TaskData.RecurrenceData.weeks ) );
-        durationValues_.add(new Pair<>( "Mois"    , TaskData.RecurrenceData.months ) );
-        durationValues_.add(new Pair<>( "Années"  , TaskData.RecurrenceData.years ) );
     }
 
     @Override
@@ -50,6 +46,12 @@ public class NewTaskActivity extends AppCompatActivity {
             }
         });
 
+        //Initialize durations
+        durationValues_.add(new Pair<>( getResources().getString(R.string.days)  , TaskData.RecurrenceData.days ) );
+        durationValues_.add(new Pair<>( getResources().getString(R.string.weeks) , TaskData.RecurrenceData.weeks ) );
+        durationValues_.add(new Pair<>( getResources().getString(R.string.months), TaskData.RecurrenceData.months ) );
+        durationValues_.add(new Pair<>( getResources().getString(R.string.years) , TaskData.RecurrenceData.years ) );
+
         //By default, the new task is considered canceled so that back button returns without doing anything
         setResult( MainActivity.TaskAction.CANCELED, result_ );
 
@@ -65,11 +67,11 @@ public class NewTaskActivity extends AppCompatActivity {
 
         //If there is a task to modify, we use the task data to initialize the input widgets
         if ( decodedTask_ != null ) {
-            setTitle( "Modifier tâche" );
+            setTitle( getResources().getString(R.string.title_activity_modify_task) );
             initFromTask( decodedTask_ );
         }
         else {
-            setTitle( "Nouvelle tâche" );
+            setTitle(getResources().getString(R.string.title_activity_new_task));
         }
 
         //We reload the state of the recurrence widgets, after the state has been reloaded in case of orientation change
@@ -86,9 +88,14 @@ public class NewTaskActivity extends AppCompatActivity {
         AutoCompleteTextView input_qty = findViewById(R.id.NewTaskQuantityInput);
         AutoCompleteTextView input_store = findViewById(R.id.NewTaskStoreInput);
         AutoCompleteTextView input_reason = findViewById(R.id.NewTaskReasonInput);
-        input_task  .setText( task.name_ );
-        input_qty   .setText( task.qty_ );
-        input_store .setText( task.store_ );
+        input_task.setText( task.name_ );
+        input_qty .setText( task.qty_ );
+        if ( !task.store_.equals(getResources().getString(R.string.default_category))) {
+            input_store.setText( task.store_ );
+        }
+        if ( !task.reason_.equals(getResources().getString(R.string.default_category))) {
+            input_reason.setText( task.reason_ );
+        }
         input_reason.setText( task.reason_ );
 
         //Recurrence data
@@ -177,13 +184,13 @@ public class NewTaskActivity extends AppCompatActivity {
             AutoCompleteTextView input_store = findViewById(R.id.NewTaskStoreInput);
             taskData.store_ = input_store.getText().toString();
             if ( taskData.store_.isEmpty() )
-                taskData.store_ = "General";
+                taskData.store_ = getResources().getString(R.string.default_category);
 
             //Reason
             AutoCompleteTextView input_reason = findViewById(R.id.NewTaskReasonInput);
             taskData.reason_ = input_reason.getText().toString();
             if ( taskData.reason_.isEmpty() )
-                taskData.reason_ = "General";
+                taskData.reason_ = getResources().getString(R.string.default_category);
 
             Switch recurrenceSwitch = findViewById(R.id.EnableRecurrenceSwitch);
             if ( recurrenceSwitch.isChecked() ) {

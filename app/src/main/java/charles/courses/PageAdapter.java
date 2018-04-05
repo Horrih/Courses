@@ -55,11 +55,11 @@ class PageAdapter extends FragmentPagerAdapter {
         // Generate title based on item position
         switch (position) {
             case 0:
-                return "Rayon";
+                return activity_.getResources().getString(R.string.store);
             case 1:
-                return "Thème";
+                return activity_.getResources().getString(R.string.reason);
             case 2:
-                return "À Venir";
+                return activity_.getResources().getString(R.string.coming_up);
             default:
                 return null;
         }
@@ -126,7 +126,7 @@ class PageAdapter extends FragmentPagerAdapter {
                         taskData.recurrence_.lastCompletionDate_ = new Date();
                         DateFormat dateFormat = new SimpleDateFormat("EEEE dd MMM yyyy", Locale.FRANCE);
                         String date = dateFormat.format(taskData.recurrence_.nextAvailableDate());
-                        CharSequence text = "Cette tâche récurrente se réactivera automatiquement le " + date + " à minuit";
+                        CharSequence text = getResources().getString(R.string.reactivation_message) + " " + date;
                         Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
                         toast.show();
                     }

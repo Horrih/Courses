@@ -194,7 +194,7 @@ public class SelectItemActivity extends AppCompatActivity {
                         return false;
                     }
                 });
-                //Make the text unfocusable when focus is lost : we need to press the edit button agian
+                //Make the text not focusable when focus is lost : we need to press the edit button agian
                 text_.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                     @Override
                     public void onFocusChange(View v, boolean hasFocus) {

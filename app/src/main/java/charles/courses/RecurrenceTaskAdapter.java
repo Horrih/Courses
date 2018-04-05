@@ -22,15 +22,15 @@ public class RecurrenceTaskAdapter extends TaskAdapter {
         Date nextDate = data.recurrence_.nextAvailableDate();
         double days = ( nextDate.getTime() - new Date().getTime() ) / ( 1000 * 3600 * 24 );
         if ( days < 1 ) {
-            return "Demain";
+            return context_.getResources().getString(R.string.tomorrow);
         } else if ( days < 7 ) {
-            return "Dans la semaine";
+            return context_.getResources().getString(R.string.this_week);
         } else if ( days < 31 ) {
-            return "Dans le mois";
+            return context_.getResources().getString(R.string.this_month);
         } else if ( days < 366 ) {
-            return "Dans l'année";
+            return context_.getResources().getString(R.string.this_year);
         } else {
-            return "Dans plus d'un an";
+            return context_.getResources().getString(R.string.next_year);
         }
     }
 
@@ -50,7 +50,7 @@ public class RecurrenceTaskAdapter extends TaskAdapter {
 
     @Override
     public View getChildView(int groupPosition, final int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-        //We will display the next occurence date of the task in addition to the rest
+        //We will display the next occurrence date of the task in addition to the rest
         View view  = super.getChildView(groupPosition, childPosition, isLastChild, convertView, parent);
         TaskData task = (TaskData) view.getTag();
         DateFormat df = new SimpleDateFormat("dd/MM/yyyy", Locale.FRANCE );

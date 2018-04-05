@@ -230,16 +230,15 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.clear_tasks ) {
             clearTasks();
         } else if ( id == R.id.share_tasks ){
-            System.out.println( "Share button clicked" );
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("text/plain");
-            String text = "Liste '" + currentList_ + "' :";
+            String text = "" + currentList_ + "':";
             text += adapter_.adapters_.get( 0 ).toText();
             shareIntent.putExtra(Intent.EXTRA_TEXT, text );
             try {
                 startActivity(shareIntent);
             } catch (android.content.ActivityNotFoundException ex) {
-                Toast toast = Toast.makeText(this, "Pas d'application disponible", Toast.LENGTH_LONG);
+                Toast toast = Toast.makeText(this, getResources().getString(R.string.no_available_app), Toast.LENGTH_LONG);
                 toast.show();
             }
         }
@@ -304,8 +303,7 @@ public class MainActivity extends AppCompatActivity {
                     nbCompleted++;
                 }
             }
-            int percentage = 100;
-            percentage = (100 * nbCompleted) / nbTasks;
+            int percentage = (100 * nbCompleted) / nbTasks;
             display = nbCompleted + "/" + nbTasks + "(" + percentage + "%)";
         }
         counterView.setText( display );
