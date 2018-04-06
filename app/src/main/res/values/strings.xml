@@ -25,7 +25,7 @@
     <string name="months">Mois</string>
     <string name="years">Années</string>
     <string name="default_list_name">Liste n°1</string>
-    <string name="default_category">Général</string>
+    <string name="default_category">Divers</string>
     <string name="no_available_app">Pas d\'application disponible</string>
     <string name="reactivation_message">Cette tâche se réactivera automatiquement à minuit le</string>
     <string name="tomorrow">Demain</string>
@@ -33,4 +33,10 @@
     <string name="this_month">Dans le mois</string>
     <string name="this_year">Dans l\'année</string>
     <string name="next_year">Dans plus d\'un an</string>
+    <string name="fruits_vegetables">Fruits et Légumes</string>
+    <string name="fresh_section">Rayon Frais</string>
+    <string name="cans">Épicerie</string>
+    <string name="cleaning">Entretien</string>
+    <string name="frozen_food">Surgelés</string>
+    <string name="choose_store_activity">Mes Rayons</string>
 </resources>

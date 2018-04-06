@@ -14,6 +14,25 @@
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
+    <style name="spinner_style">
+        <item name="android:background">@drawable/background_spinner</item>
+        <item name="android:paddingStart">32dp</item>
+    </style>
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="AutocompletionText">
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:layout_marginTop">28dp</item>
+        <item name="android:background">@drawable/edit_text_style</item>
+        <item name="android:completionThreshold">1</item>
+        <item name="android:cursorVisible">true</item>
+        <item name="android:ellipsize">start</item>
+        <item name="android:gravity">center</item>
+        <item name="android:imeOptions">actionDone</item>
+        <item name="android:inputType">textCapSentences</item>
+        <item name="android:padding">7dp</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textColorLink">@color/colorPrimary</item>
+        <item name="android:textCursorDrawable">@drawable/black_cursor</item>
+        <item name="android:textIsSelectable">false</item>
+    </style>
 </resources>

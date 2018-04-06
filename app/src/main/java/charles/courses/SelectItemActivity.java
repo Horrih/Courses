@@ -49,6 +49,7 @@ public class SelectItemActivity extends AppCompatActivity {
         ArrayList<String> addedItems_ = new ArrayList<>();
         ArrayList<String> removedItems_ = new ArrayList<>();
         ArrayList<ValueChange> modifiedItems_ = new ArrayList<>();
+        ArrayList<String> updatedList_ = new ArrayList<>();
     }
 
     static String InputMarker = "InputMarker";
@@ -88,9 +89,6 @@ public class SelectItemActivity extends AppCompatActivity {
         listView_.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         listView_.setItemAnimator(new DefaultItemAnimator());
         listView_.setAdapter(adapter_);
-
-        //Default result
-        updateResult();
     }
 
     @Override
@@ -115,6 +113,7 @@ public class SelectItemActivity extends AppCompatActivity {
         if ( adapter_.getItemCount() > 0 ) {
             result_.selected_ = adapter_.items_.get( adapter_.selected_ );
         }
+        result_.updatedList_.addAll( adapter_.items_ );
 
         //Serialization to send result back to MainActivity
         Bundle bundle = new Bundle();

@@ -16,6 +16,7 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
@@ -23,16 +24,27 @@ import java.util.TreeSet;
 
 public class NewTaskActivity extends AppCompatActivity {
 
-    protected Intent result_ = new Intent();
-    protected HashMap<String, Integer> durationStringToDays_ = new HashMap<>();
-    protected TaskData decodedTask_ = null;
-    private ArrayList<Pair<String, Integer>> durationValues_ = new ArrayList<>();
-
-    static {
+    class TaskAction { static final int CREATED = 0, MODIFIED = 1, CANCELED = 2, DELETED = 3; }
+    static String TaskDataMarker = "TaskData";
+    static class Input implements Serializable
+    {
+        TaskData task_ = null;
+        ArrayList<TaskData> history_ = new ArrayList<>();
+        ArrayList<String> stores_ = new ArrayList<>();
     }
 
+    static class Output implements Serializable
+    {
+        TaskData task_ = new TaskData();
+        ArrayList<String> stores_ = new ArrayList<>();
+    }
+
+    protected HashMap<String, Integer> durationStringToDays_ = new HashMap<>();
+    private ArrayList<Pair<String, Integer>> durationValues_ = new ArrayList<>();
+    private Input input_ = new Input();
+    private Output output_ = new Output();
+
     @Override
-    @SuppressWarnings("unchecked")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_task);
@@ -53,7 +65,7 @@ public class NewTaskActivity extends AppCompatActivity {
         durationValues_.add(new Pair<>( getResources().getString(R.string.years) , TaskData.RecurrenceData.years ) );
 
         //By default, the new task is considered canceled so that back button returns without doing anything
-        setResult( MainActivity.TaskAction.CANCELED, result_ );
+        setResult( TaskAction.CANCELED, new Intent() );
 
         //Populating the recurrence spinner values
         initSpinnerValues();
@@ -61,14 +73,21 @@ public class NewTaskActivity extends AppCompatActivity {
         //We recover the task to modify if it exists
         Bundle bundle = getIntent().getExtras();
         if ( bundle != null ) {
-            decodedTask_ = (TaskData) bundle.getSerializable(MainActivity.TaskDataMarker);
-            initFromHistory( (ArrayList) bundle.getSerializable(MainActivity.TaskHistoryMarker) );
+            input_ = (Input) bundle.getSerializable(TaskDataMarker);
+            initFromHistory( input_.history_ );
         }
 
+        //Initialize the result list of stores to the input
+        output_.stores_.addAll(input_.stores_);
+        Spinner storeSpinner = findViewById(R.id.NewTaskStoreInput);
+        ArrayAdapter<String> adapterStores = new ArrayAdapter<>(this, R.layout.spinner_style, output_.stores_ );
+        adapterStores.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        storeSpinner.setAdapter(adapterStores);
+
         //If there is a task to modify, we use the task data to initialize the input widgets
-        if ( decodedTask_ != null ) {
+        if ( input_.task_ != null ) {
             setTitle( getResources().getString(R.string.title_activity_modify_task) );
-            initFromTask( decodedTask_ );
+            initFromTask(input_.task_ );
         }
         else {
             setTitle(getResources().getString(R.string.title_activity_new_task));
@@ -84,19 +103,15 @@ public class NewTaskActivity extends AppCompatActivity {
     }
 
     private void initFromTask( TaskData task ) {
+        setStore(task.store_);
         AutoCompleteTextView input_task = findViewById(R.id.NewTaskInput);
         AutoCompleteTextView input_qty = findViewById(R.id.NewTaskQuantityInput);
-        AutoCompleteTextView input_store = findViewById(R.id.NewTaskStoreInput);
         AutoCompleteTextView input_reason = findViewById(R.id.NewTaskReasonInput);
         input_task.setText( task.name_ );
         input_qty .setText( task.qty_ );
-        if ( !task.store_.equals(getResources().getString(R.string.default_category))) {
-            input_store.setText( task.store_ );
-        }
         if ( !task.reason_.equals(getResources().getString(R.string.default_category))) {
             input_reason.setText( task.reason_ );
         }
-        input_reason.setText( task.reason_ );
 
         //Recurrence data
         if ( task.recurrence_ != null ) {
@@ -106,13 +121,13 @@ public class NewTaskActivity extends AppCompatActivity {
             recurrenceSwitch.setChecked( true );
             int durationId = 0;
             for ( int i = 0; i < durationValues_.size(); i++ ) {
-                if ( durationValues_.get(i).second == decodedTask_.recurrence_.period_ ) {
+                if ( durationValues_.get(i).second == task.recurrence_.period_ ) {
                     durationId = i;
                     break;
                 }
             }
             durationSpinner.setSelection(durationId);
-            numberSpinner.setSelection( decodedTask_.recurrence_.number_ - 1 );
+            numberSpinner.setSelection( task.recurrence_.number_ - 1 );
         }
     }
 
@@ -142,33 +157,24 @@ public class NewTaskActivity extends AppCompatActivity {
 
     private void initFromHistory( ArrayList<TaskData> tasks ) {
         Set<String> names = new TreeSet<>();
-        Set<String> stores = new TreeSet<>();
         Set<String> reasons = new TreeSet<>();
         for ( TaskData task : tasks ) {
             names.add( task.name_ );
-            stores.add(task.store_);
             reasons.add(task.reason_);
         }
         ArrayAdapter<String> adapterNames   = new ArrayAdapter<>(this, R.layout.completion_item, new ArrayList<>(names));
-        ArrayAdapter<String> adapterStores  = new ArrayAdapter<>(this, R.layout.completion_item, new ArrayList<>(stores));
         ArrayAdapter<String> adapterReasons = new ArrayAdapter<>(this, R.layout.completion_item, new ArrayList<>(reasons));
         AutoCompleteTextView namesInput  = findViewById(R.id.NewTaskInput);
-        AutoCompleteTextView storesInput = findViewById(R.id.NewTaskStoreInput);
         AutoCompleteTextView reasonInput = findViewById(R.id.NewTaskReasonInput);
         namesInput.setAdapter(adapterNames);
-        storesInput.setAdapter(adapterStores);
         reasonInput.setAdapter(adapterReasons);
         namesInput.setThreshold(1);
-        storesInput.setThreshold(1);
         reasonInput.setThreshold(1);
     }
 
     public void onConfirm() {
-        int action = decodedTask_ != null ? MainActivity.TaskAction.MODIFIED : MainActivity.TaskAction.CREATED;
-        TaskData taskData = decodedTask_;
-        if ( taskData == null ) {
-            taskData = new TaskData();
-        }
+        int action = input_.task_ != null ? TaskAction.MODIFIED : TaskAction.CREATED;
+        TaskData taskData = output_.task_;
 
         AutoCompleteTextView input_task = findViewById(R.id.NewTaskInput);
         String name = input_task.getText().toString();
@@ -181,10 +187,7 @@ public class NewTaskActivity extends AppCompatActivity {
             taskData.qty_ = input_qty.getText().toString();
 
             //Store
-            AutoCompleteTextView input_store = findViewById(R.id.NewTaskStoreInput);
-            taskData.store_ = input_store.getText().toString();
-            if ( taskData.store_.isEmpty() )
-                taskData.store_ = getResources().getString(R.string.default_category);
+            taskData.store_ = getStore();
 
             //Reason
             AutoCompleteTextView input_reason = findViewById(R.id.NewTaskReasonInput);
@@ -206,17 +209,18 @@ public class NewTaskActivity extends AppCompatActivity {
             }
 
             //Serialization to send result back to MainActivity
+            Intent result = new Intent();
             Bundle bundle = new Bundle();
-            bundle.putSerializable(MainActivity.TaskDataMarker, taskData);
-            result_.putExtras(bundle);
-            setResult( action, result_);
+            bundle.putSerializable(TaskDataMarker, output_);
+            result.putExtras(bundle);
+            setResult( action, result);
         }
         finish();
     }
 
     public void onActivateRecurrence(View view)
     {
-        //No particular action : just refresh en color of the widgets
+        //No particular action : just refresh the color of the widgets
         refreshRecurrenceDisplay();
     }
 
@@ -244,7 +248,7 @@ public class NewTaskActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_add_task, menu);
 
         //We hide the delete menu item if we are not modifying an existing task
-        if ( decodedTask_ == null ) {
+        if ( input_.task_ == null ) {
             MenuItem item = menu.findItem(R.id.delete_task);
             item.setVisible(false);
         }
@@ -254,15 +258,54 @@ public class NewTaskActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
         if (id == R.id.validate_task) {
             onConfirm();
         } else if ( id == R.id.delete_task ){
-            setResult( MainActivity.TaskAction.DELETED, result_ );
+            setResult( TaskAction.DELETED, new Intent() );
             finish();
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Bundle bundle = data.getExtras();
+        if ( bundle != null ) {
+            SelectItemActivity.Result result = (SelectItemActivity.Result) bundle.getSerializable( SelectItemActivity.ResultMarker );
+            output_.stores_.clear();
+            output_.stores_.addAll(result.updatedList_);
+            setStore(result.selected_);
+            Spinner storeSpinner = findViewById(R.id.NewTaskStoreInput);
+            ((ArrayAdapter<String>)storeSpinner.getAdapter()).notifyDataSetChanged();
+        } else {
+            System.out.println( "Error : new task activity action " + resultCode + " without bundled task" );
+        }
+    }
+
+    private String getStore() {
+        Spinner stores = findViewById(R.id.NewTaskStoreInput);
+        return output_.stores_.get(stores.getSelectedItemPosition());
+    }
+
+    private void setStore(String store) {
+        Spinner stores = findViewById(R.id.NewTaskStoreInput);
+        for ( int id = 0; id < output_.stores_.size(); id++ ) {
+            if ( output_.stores_.get(id).equals( store ) ) {
+                stores.setSelection(id);
+                return;
+            }
+        }
+    }
+
+    public void onModifyStores(View view) {
+        Intent intent = new Intent(this, SelectItemActivity.class);
+        Bundle bundle = new Bundle();
+        SelectItemActivity.Input items = new SelectItemActivity.Input();
+        items.title_ = getResources().getString(R.string.choose_store_activity);
+        items.values_ = output_.stores_;
+        items.selected_ = getStore();
+        bundle.putSerializable(SelectItemActivity.InputMarker, items);
+        intent.putExtras(bundle);
+        startActivityForResult(intent,0);
     }
 }

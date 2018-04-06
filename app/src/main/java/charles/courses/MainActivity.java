@@ -23,9 +23,6 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
     public class ActionType { static final int TASK_ACTIVITY = 0, CHANGE_LISTS_ACTIVITY = 1; }
-    class TaskAction { static final int CREATED = 0, MODIFIED = 1, CANCELED = 2, DELETED = 3; }
-    public static String TaskDataMarker = "TaskData";
-    public static String TaskHistoryMarker = "TaskHistory";
     PageAdapter adapter_;
     protected TaskStorage storage_ = null;
     String currentList_ = "";
@@ -101,33 +98,39 @@ public class MainActivity extends AppCompatActivity {
         Bundle bundle = data.getExtras();
         // Check which request we're responding to
         if (requestCode == ActionType.TASK_ACTIVITY) {
-            if ( resultCode == TaskAction.CREATED || resultCode == TaskAction.MODIFIED) {
+            if ( resultCode == NewTaskActivity.TaskAction.CREATED || resultCode == NewTaskActivity.TaskAction.MODIFIED) {
                 //Deserialize the result from the intent bundle
                 if ( bundle != null ) {
-                    TaskData decodedTask = (TaskData) bundle.getSerializable(TaskDataMarker);
+                    NewTaskActivity.Output result = (NewTaskActivity.Output) bundle.getSerializable(NewTaskActivity.TaskDataMarker);
 
                     //Adding / modifying the task
-                    if ( resultCode == TaskAction.CREATED ) {
-                        getTasks().add( decodedTask );
+                    if ( resultCode == NewTaskActivity.TaskAction.CREATED ) {
+                        getTasks().add( result.task_ );
                     } else {
-                        getTasks().set( taskBeingModified_, decodedTask );
+                        getTasks().set( taskBeingModified_, result.task_ );
                     }
 
-                    //Add the task to the history of tasks
+                    //We add the task to the history
+                    NewTaskActivity.Output copy = (NewTaskActivity.Output) bundle.getSerializable(NewTaskActivity.TaskDataMarker);
                     ArrayList<TaskData> history = storage_.getHistory(currentList_);
-                    history.add((TaskData) bundle.getSerializable(TaskDataMarker));
+                    history.add(copy.task_);
                     if ( history.size() > 100 ) {
                         history.remove( 0 );
                     }
+
+                    //Update the list of stores
+                    ArrayList<String> stores = storage_.getStores(currentList_);
+                    stores.clear();
+                    stores.addAll( result.stores_ );
                 }
                 else {
                     System.out.println( "Error : activity action " + resultCode + " without bundled task" );
                 }
-             } else if ( resultCode == TaskAction.DELETED ) {
+             } else if ( resultCode == NewTaskActivity.TaskAction.DELETED ) {
                 getTasks().remove(taskBeingModified_);
             }
             //Refresh the views
-            if ( resultCode != TaskAction.CANCELED ) {
+            if ( resultCode != NewTaskActivity.TaskAction.CANCELED ) {
                 taskUpdate();
             }
         } else if ( requestCode == ActionType.CHANGE_LISTS_ACTIVITY ) {
@@ -169,10 +172,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if ( currentList_ == null || storage_ == null ) {
-            currentList_ = getResources().getString(R.string.default_list_name);
-            storage_ = new TaskStorage( currentList_ );
-        }
     }
 
     protected void loadBackup()
@@ -189,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
         }
         if ( storage_ == null || currentList_ == null || currentList_.isEmpty() ) {
             currentList_ = getResources().getString(R.string.default_list_name);
-            storage_ = new TaskStorage( currentList_ );
+            storage_ = new TaskStorage( getResources() );
         }
     }
 
@@ -255,11 +254,14 @@ public class MainActivity extends AppCompatActivity {
     {
         Intent intent = new Intent(MainActivity.this, NewTaskActivity.class);
         Bundle bundle = new Bundle();
+        NewTaskActivity.Input input = new NewTaskActivity.Input();
+        input.history_ = storage_.getHistory(currentList_);
+        input.stores_ = storage_.getStores(currentList_);
         if ( taskData != null ) {
-            bundle.putSerializable(MainActivity.TaskDataMarker, taskData);
+            input.task_ = taskData;
             taskBeingModified_ = getTasks().indexOf(taskData);
         }
-        bundle.putSerializable(MainActivity.TaskHistoryMarker, storage_.getHistory(currentList_));
+        bundle.putSerializable(NewTaskActivity.TaskDataMarker, input);
         intent.putExtras(bundle);
         startActivityForResult(intent, ActionType.TASK_ACTIVITY);
     }
