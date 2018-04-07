@@ -1,0 +1,7 @@
+<resources>
+    <!-- From Android Marshmallow, we can have a spinner arrow on the left easily -->
+    <style name="spinner_style">
+        <item name="android:background">@drawable/background_spinner</item>
+        <item name="android:paddingStart">32dp</item>
+    </style>
+</resources>

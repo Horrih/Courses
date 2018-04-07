@@ -95,17 +95,18 @@
                 app:layout_constraintTop_toTopOf="@+id/ActivateRecurrenceTextView" />
 
             <Spinner
-                style="@style/spinner_style"
                 android:id="@+id/RecurrenceNumberSpinner"
-                android:layout_width="68dp"
+                style="@style/spinner_style"
+                android:layout_width="50dp"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="32dp"
                 app:layout_constraintEnd_toStartOf="@+id/RecurrenceDurationSpinner"
                 app:layout_constraintTop_toTopOf="@+id/RecurrenceTimeTextView" />
 
             <Spinner
-                style="@style/spinner_style"
                 android:id="@+id/RecurrenceDurationSpinner"
-                android:layout_width="140dp"
+                style="@style/spinner_style"
+                android:layout_width="119dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="@+id/EnableRecurrenceSwitch"
