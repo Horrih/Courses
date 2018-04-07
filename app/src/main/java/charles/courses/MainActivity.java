@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
@@ -113,9 +114,9 @@ public class MainActivity extends AppCompatActivity {
                     //We add the task to the history
                     NewTaskActivity.Output copy = (NewTaskActivity.Output) bundle.getSerializable(NewTaskActivity.TaskDataMarker);
                     ArrayList<TaskData> history = storage_.getHistory(currentList_);
-                    history.add(copy.task_);
+                    history.add(0, copy.task_);
                     if ( history.size() > 100 ) {
-                        history.remove( 0 );
+                        history.remove( 100 );
                     }
 
                     //Update the list of stores

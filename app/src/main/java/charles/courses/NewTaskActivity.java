@@ -1,8 +1,6 @@
 package charles.courses;
 
 import android.content.Intent;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -10,11 +8,13 @@ import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -87,7 +87,7 @@ public class NewTaskActivity extends AppCompatActivity {
         //If there is a task to modify, we use the task data to initialize the input widgets
         if ( input_.task_ != null ) {
             setTitle( getResources().getString(R.string.title_activity_modify_task) );
-            initFromTask(input_.task_ );
+            initFromTask(input_.task_ , true);
         }
         else {
             setTitle(getResources().getString(R.string.title_activity_new_task));
@@ -102,7 +102,7 @@ public class NewTaskActivity extends AppCompatActivity {
         });
     }
 
-    private void initFromTask( TaskData task ) {
+    private void initFromTask( TaskData task, boolean initRecurrenceData ) {
         setStore(task.store_);
         AutoCompleteTextView input_task = findViewById(R.id.NewTaskInput);
         AutoCompleteTextView input_qty = findViewById(R.id.NewTaskQuantityInput);
@@ -114,7 +114,7 @@ public class NewTaskActivity extends AppCompatActivity {
         }
 
         //Recurrence data
-        if ( task.recurrence_ != null ) {
+        if ( task.recurrence_ != null && initRecurrenceData) {
             Switch recurrenceSwitch = findViewById(R.id.EnableRecurrenceSwitch);
             Spinner durationSpinner = findViewById(R.id.RecurrenceDurationSpinner);
             Spinner numberSpinner = findViewById(R.id.RecurrenceNumberSpinner);
@@ -170,6 +170,17 @@ public class NewTaskActivity extends AppCompatActivity {
         reasonInput.setAdapter(adapterReasons);
         namesInput.setThreshold(1);
         reasonInput.setThreshold(1);
+        namesInput.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String completedText = ((TextView) view).getText().toString();
+                for ( TaskData task : input_.history_ ) {
+                    if ( task.name_.equals( completedText ) ) {
+                        initFromTask(task, false);
+                    }
+                }
+            }
+        });
     }
 
     public void onConfirm() {
