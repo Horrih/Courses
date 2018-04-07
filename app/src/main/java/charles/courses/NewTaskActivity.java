@@ -5,9 +5,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Pair;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -165,7 +167,11 @@ public class NewTaskActivity extends AppCompatActivity {
         ArrayAdapter<String> adapterNames   = new ArrayAdapter<>(this, R.layout.completion_item, new ArrayList<>(names));
         ArrayAdapter<String> adapterReasons = new ArrayAdapter<>(this, R.layout.completion_item, new ArrayList<>(reasons));
         AutoCompleteTextView namesInput  = findViewById(R.id.NewTaskInput);
+        AutoCompleteTextView quantityInput  = findViewById(R.id.NewTaskQuantityInput);
         AutoCompleteTextView reasonInput = findViewById(R.id.NewTaskReasonInput);
+        loseFocusOnActionsDone(namesInput);
+        loseFocusOnActionsDone(quantityInput);
+        loseFocusOnActionsDone(reasonInput);
         namesInput.setAdapter(adapterNames);
         reasonInput.setAdapter(adapterReasons);
         namesInput.setThreshold(1);
@@ -322,5 +328,22 @@ public class NewTaskActivity extends AppCompatActivity {
         bundle.putSerializable(SelectItemActivity.InputMarker, items);
         intent.putExtras(bundle);
         startActivityForResult(intent,0);
+    }
+
+    void loseFocusOnActionsDone(final AutoCompleteTextView text) {
+        text.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if( actionId == EditorInfo.IME_ACTION_DONE){
+                    text.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            text.clearFocus();
+                        }
+                    });
+                }
+                return false;
+            }
+        });
     }
 }
