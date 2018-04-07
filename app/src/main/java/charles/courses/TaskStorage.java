@@ -15,17 +15,16 @@ class TaskStorage implements Serializable{
         defaultStoreNames_.add( resources.getString(R.string.frozen_food));
         defaultStoreNames_.add( resources.getString(R.string.cleaning));
         newList( defaultListName_ );
-        getStores( defaultListName_ ).addAll( defaultStoreNames_);
     }
     void newList( String listName ) {
         storage_.put( listName, new Tasks());
-    }
+        setStores( listName, defaultStoreNames_ );
+     }
 
     void removeList( String listName ) {
         storage_.remove(listName);
         if ( storage_.isEmpty() ) {
             newList( defaultListName_ );
-            getStores( defaultListName_ ).addAll( defaultStoreNames_);
         }
     }
 
@@ -45,12 +44,23 @@ class TaskStorage implements Serializable{
     }
 
     ArrayList<String> getStores(String listName) {
-        ArrayList<String> stores = null;
+        ArrayList<String> stores = new ArrayList<>();
         Tasks tasks = storage_.get( listName );
         if ( tasks != null ) {
-            stores = tasks.stores_;
+            stores.addAll( tasks.stores_ );
         }
         return stores;
+    }
+
+    void setStores( String listName, ArrayList<String> stores ) {
+        Tasks tasks = storage_.get( listName );
+        if ( tasks != null ) {
+            tasks.stores_.clear();
+            tasks.stores_.addAll(stores);
+            if ( tasks.stores_.isEmpty() ) {
+                tasks.stores_.addAll( defaultStoreNames_);
+            }
+        }
     }
 
     ArrayList<TaskData> getHistory(String listName) {

@@ -295,7 +295,11 @@ public class NewTaskActivity extends AppCompatActivity {
 
     private String getStore() {
         Spinner stores = findViewById(R.id.NewTaskStoreInput);
-        return output_.stores_.get(stores.getSelectedItemPosition());
+        String store = getResources().getString(R.string.default_category);
+        if ( !output_.stores_.isEmpty() ) {
+            store = output_.stores_.get(stores.getSelectedItemPosition());
+        }
+        return store;
     }
 
     private void setStore(String store) {

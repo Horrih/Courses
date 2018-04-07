@@ -7,7 +7,6 @@ import android.os.Handler;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
@@ -120,9 +119,7 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     //Update the list of stores
-                    ArrayList<String> stores = storage_.getStores(currentList_);
-                    stores.clear();
-                    stores.addAll( result.stores_ );
+                    storage_.setStores( currentList_, result.stores_ );
                 }
                 else {
                     System.out.println( "Error : activity action " + resultCode + " without bundled task" );
