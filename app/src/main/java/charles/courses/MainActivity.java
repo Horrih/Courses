@@ -142,6 +142,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 for ( String added: result.addedItems_ ) {
                     storage_.newList( added );
+                    storage_.setStores(added, storage_.getStores(currentList_));
                 }
                 //Update the selected list
                 if ( storage_.getLists().size() > 1 ) {
@@ -253,7 +254,14 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(MainActivity.this, NewTaskActivity.class);
         Bundle bundle = new Bundle();
         NewTaskActivity.Input input = new NewTaskActivity.Input();
-        input.history_ = storage_.getHistory(currentList_);
+
+        //We give as history of tasks up to 100 items from other lists + the history of the current list
+        for ( String list : storage_.getLists() ) {
+            if ( input.history_.size() < 100 && !list.equals( currentList_ ) ) {
+                input.history_.addAll( storage_.getHistory(list));
+            }
+        }
+        input.history_.addAll(storage_.getHistory(currentList_));
         input.stores_ = storage_.getStores(currentList_);
         if ( taskData != null ) {
             input.task_ = taskData;
