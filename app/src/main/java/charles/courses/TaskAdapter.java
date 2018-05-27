@@ -14,13 +14,17 @@ import android.widget.CheckBox;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 
+import java.text.Collator;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Locale;
 
 public class TaskAdapter extends BaseExpandableListAdapter {
-    protected Context context_;
+    Context context_;
     ArrayList<TaskData> original_data_ = null;
     ExpandableListView listView_ = null;
-    private ArrayList<Pair<String, ArrayList<TaskData>>> data_ = new ArrayList<>();
+    protected ArrayList<Pair<String, ArrayList<TaskData>>> data_ = new ArrayList<>();
 
     TaskAdapter(Context context, ArrayList<TaskData> data) {
         this.context_ = context;
@@ -184,6 +188,7 @@ public class TaskAdapter extends BaseExpandableListAdapter {
             //Add the task to the group
             foundGroup.second.add( task );
         }
+        sortGroups();
 
         //Expand groups of newly added elements
         if ( listView_ != null ) {
@@ -210,5 +215,18 @@ public class TaskAdapter extends BaseExpandableListAdapter {
             }
         }
         return result;
+    }
+
+    void sortGroups() {
+        Collections.sort(data_, new Comparator<Pair<String,ArrayList<TaskData>>>() {
+            @Override
+            public int compare(Pair<String, ArrayList<TaskData>> group1, Pair<String, ArrayList<TaskData>> group2) {
+                //Sorting while taking into account that abc is closer to ABC than to ZBC for a human (unlike ASCII comparison)
+                //Same of accented characters é is expected to be between e and f, not after z
+                Collator frCollator = Collator.getInstance(Locale.FRANCE);
+                frCollator.setStrength(Collator.PRIMARY);
+                return  frCollator.compare( group1.first, group2.first );
+            }
+        });
     }
 }

@@ -1,6 +1,7 @@
 package charles.courses;
 
 import android.content.Context;
+import android.util.Pair;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -8,6 +9,8 @@ import android.widget.TextView;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TreeMap;
@@ -60,5 +63,18 @@ public class RecurrenceTaskAdapter extends TaskAdapter {
         TextView nextOccurrence = view.findViewById(R.id.TaskExpiryDate);
         nextOccurrence.setText( nextDate );
         return view;
+    }
+
+    @Override
+    void sortGroups() {
+        Collections.sort(data_, new Comparator<Pair<String,ArrayList<TaskData>>>() {
+            //We display the groups by date : the first being the ones arriving next
+            @Override
+            public int compare(Pair<String, ArrayList<TaskData>> group1, Pair<String, ArrayList<TaskData>> group2) {
+                Date date1 = group1.second.get(0).recurrence_.nextAvailableDate();
+                Date date2 = group2.second.get(0).recurrence_.nextAvailableDate();
+                return date1.compareTo( date2 );
+            }
+        });
     }
 }
