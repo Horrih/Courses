@@ -143,6 +143,7 @@ public class SelectItemActivity extends AppCompatActivity {
         final ArrayList<String> items_ = new ArrayList<>();
         SelectItemActivity activity_;
         int selected_ = 0;
+        int pendingEdit_ = -1;
 
         class SelectItemViewHolder extends RecyclerView.ViewHolder{
             EditText text_;
@@ -193,7 +194,7 @@ public class SelectItemActivity extends AppCompatActivity {
                         return false;
                     }
                 });
-                //Make the text not focusable when focus is lost : we need to press the edit button agian
+                //Make the text not focusable when focus is lost : we need to press the edit button again
                 text_.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                     @Override
                     public void onFocusChange(View v, boolean hasFocus) {
@@ -232,11 +233,12 @@ public class SelectItemActivity extends AppCompatActivity {
                 editButton_.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        text_.setFocusableInTouchMode(true);
-                        text_.requestFocus();
-                        text_.setSelection( text_.getText().toString().length() );
-                        InputMethodManager mgr = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                        mgr.showSoftInput(text_, InputMethodManager.SHOW_IMPLICIT);
+                        //Notify that this text should be edited. We can't edit here, because the
+                        //edited item becomes the new selected item.
+                        //A new view holder will be created to enable the font change
+                        //This one will be deleted/recycled and can not be used directly
+                        pendingEdit_ = getAdapterPosition();
+                        notifyItemChanged(pendingEdit_);
                     }
                 });
             }
@@ -266,6 +268,29 @@ public class SelectItemActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull final SelectItemViewHolder holder, int position) {
             holder.text_.setText(items_.get(position));
+            if ( pendingEdit_ == position ) {
+                pendingEdit_ = -1;
+
+                //Update the selected item to the edited one
+                final int prevSelected = selected_;
+                selected_ = position;
+
+                //Focus the text and open the keyboard
+                holder.text_.setFocusableInTouchMode(true);
+                holder.text_.requestFocus();
+                holder.text_.setSelection(holder.text_.getText().toString().length());
+
+                //Open the keyboard after the text has been displayed
+                holder.text_.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        notifyItemChanged(prevSelected);
+                        InputMethodManager mgr = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                        mgr.showSoftInput(holder.text_, InputMethodManager.SHOW_IMPLICIT);
+                    }
+                });
+            }
+
             boolean isSelected = selected_ == position;
             int colorId = isSelected ? R.color.colorAccent : R.color.text;
             holder.text_.setTextColor(getResources().getColor(colorId));
