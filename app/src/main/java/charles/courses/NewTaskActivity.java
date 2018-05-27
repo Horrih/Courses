@@ -41,7 +41,7 @@ public class NewTaskActivity extends AppCompatActivity {
         ArrayList<String> stores_ = new ArrayList<>();
     }
 
-    protected HashMap<String, Integer> durationStringToDays_ = new HashMap<>();
+    private HashMap<String, Integer> durationStringToDays_ = new HashMap<>();
     private ArrayList<Pair<String, Integer>> durationValues_ = new ArrayList<>();
     private Input input_ = new Input();
     private Output output_ = new Output();
@@ -72,11 +72,10 @@ public class NewTaskActivity extends AppCompatActivity {
         //Populating the recurrence spinner values
         initSpinnerValues();
 
-        //We recover the task to modify if it exists
+        //We recover the input data if it exists
         Bundle bundle = getIntent().getExtras();
         if ( bundle != null ) {
             input_ = (Input) bundle.getSerializable(TaskDataMarker);
-            initFromHistory( input_.history_ );
         }
 
         //Initialize the result list of stores to the input
@@ -85,6 +84,9 @@ public class NewTaskActivity extends AppCompatActivity {
         ArrayAdapter<String> adapterStores = new ArrayAdapter<>(this, R.layout.spinner_style, output_.stores_ );
         adapterStores.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         storeSpinner.setAdapter(adapterStores);
+
+        //We initialize the various widgets from the history of tasks
+        initFromHistory( input_.history_ );
 
         //If there is a task to modify, we use the task data to initialize the input widgets
         if ( input_.task_ != null ) {
@@ -163,6 +165,9 @@ public class NewTaskActivity extends AppCompatActivity {
         for ( TaskData task : tasks ) {
             names.add( task.name_ );
             reasons.add(task.reason_);
+        }
+        if ( !tasks.isEmpty() ) {
+            setStore(tasks.get(0).store_);
         }
         ArrayAdapter<String> adapterNames   = new ArrayAdapter<>(this, R.layout.completion_item, new ArrayList<>(names));
         ArrayAdapter<String> adapterReasons = new ArrayAdapter<>(this, R.layout.completion_item, new ArrayList<>(reasons));
