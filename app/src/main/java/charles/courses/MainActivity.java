@@ -1,12 +1,14 @@
 package charles.courses;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
@@ -14,21 +16,13 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class MainActivity extends AppCompatActivity {
-    public class ActionType { static final int TASK_ACTIVITY = 0, CHANGE_LISTS_ACTIVITY = 1; }
+public class MainActivity extends Activity {
+    public class ActionType { static final int TASK_ACTIVITY = 0, CHANGE_LISTS_ACTIVITY = 1, CHANGE_RECIPES_ACTIVITY = 2, ADD_RECIPE_ACTIVITY = 3; }
     PageAdapter adapter_;
-    protected TaskStorage storage_ = null;
-    String currentList_ = "";
-    protected String backupFile_ = "CoursesBackup.save";
     final Handler periodicChecker_ = new Handler();
-    int taskBeingModified_ = 0;
     Runnable periodicCallback_;
 
     ViewPager taskPager_;
@@ -38,9 +32,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initToolbar();
-
-        //Reload data from previous executions
-        loadBackup();
 
         adapter_ = new PageAdapter(this);
         taskPager_ = findViewById(R.id.TaskPager);
@@ -70,21 +61,34 @@ public class MainActivity extends AppCompatActivity {
     void initToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setNavigationIcon(R.drawable.ic_dehaze_24dp);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, SelectItemActivity.class);
-                Bundle bundle = new Bundle();
-                SelectItemActivity.Input items = new SelectItemActivity.Input();
-                items.title_ = getResources().getString(R.string.edit_lists_activity);
-                items.values_ = storage_.getLists();
-                items.selected_ = currentList_;
-                bundle.putSerializable(SelectItemActivity.InputMarker, items);
-                intent.putExtras(bundle);
-                startActivityForResult(intent, ActionType.CHANGE_LISTS_ACTIVITY);
+        toolbar.setNavigationIcon(R.drawable.ic_menu_24dp);
+
+        final DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+        NavigationView navigationView = findViewById(R.id.NavigationView);
+        navigationView.setNavigationItemSelectedListener(
+            new NavigationView.OnNavigationItemSelectedListener() {
+                @Override
+                public boolean onNavigationItemSelected(MenuItem item) {
+                    drawerLayout.closeDrawers();
+                    int id = item.getItemId();
+                    if (id == R.id.navigation_edit_lists ) {
+                        Intent intent = new Intent(MainActivity.this, SelectItemActivity.class);
+                        SelectItemActivity.Input items = new SelectItemActivity.Input();
+                        items.title_ = getResources().getString(R.string.edit_lists_activity);
+                        items.values_ = getStorage().tasks_.getLists();
+                        items.selected_ = getCurrentList();
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable(SelectItemActivity.InputMarker, items);
+                        intent.putExtras(bundle);
+                        startActivityForResult(intent, ActionType.CHANGE_LISTS_ACTIVITY);
+                    } else if ( id == R.id.navigation_edit_recipes ) {
+                        Intent intent = new Intent(MainActivity.this, EditRecipesActivity.class);
+                        startActivityForResult(intent, ActionType.CHANGE_RECIPES_ACTIVITY);
+                    }
+                    return true;
+                }
             }
-        });
+        );
     }
 
     @Override
@@ -94,108 +98,64 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
     }
 
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Bundle bundle = data.getExtras();
+        TaskStorage tasks = getStorage().tasks_;
         // Check which request we're responding to
         if (requestCode == ActionType.TASK_ACTIVITY) {
-            if ( resultCode == NewTaskActivity.TaskAction.CREATED || resultCode == NewTaskActivity.TaskAction.MODIFIED) {
-                //Deserialize the result from the intent bundle
-                if ( bundle != null ) {
-                    NewTaskActivity.Output result = (NewTaskActivity.Output) bundle.getSerializable(NewTaskActivity.TaskDataMarker);
+            //Task change: update the lists if necessary
+            TaskData task = onTaskResult( resultCode, data, getTasks() );
+            if ( task != null ) {
+                //Update history
+                ArrayList<TaskData> history = getStorage().tasks_.getHistory(getCurrentList());
+                history.add(0, task);
+                if ( history.size() > 1000 )
+                    history.remove( 1000 );
 
-                    //Adding / modifying the task
-                    if ( resultCode == NewTaskActivity.TaskAction.CREATED ) {
-                        getTasks().add( result.task_ );
-                    } else {
-                        getTasks().set( taskBeingModified_, result.task_ );
-                    }
-
-                    //We add the task to the history
-                    NewTaskActivity.Output copy = (NewTaskActivity.Output) bundle.getSerializable(NewTaskActivity.TaskDataMarker);
-                    ArrayList<TaskData> history = storage_.getHistory(currentList_);
-                    history.add(0, copy.task_);
-                    if ( history.size() > 100 ) {
-                        history.remove( 100 );
-                    }
-
-                    //Update the list of stores
-                    storage_.setStores( currentList_, result.stores_ );
-                }
-                else {
-                    System.out.println( "Error : activity action " + resultCode + " without bundled task" );
-                }
-             } else if ( resultCode == NewTaskActivity.TaskAction.DELETED ) {
-                getTasks().remove(taskBeingModified_);
-            }
-            //Refresh the views
-            if ( resultCode != NewTaskActivity.TaskAction.CANCELED ) {
+                //Refresh the views
                 taskUpdate();
             }
         } else if ( requestCode == ActionType.CHANGE_LISTS_ACTIVITY ) {
+            Bundle bundle = data.getExtras();
             if ( bundle != null ) {
                 SelectItemActivity.Result result = (SelectItemActivity.Result) bundle.getSerializable( SelectItemActivity.ResultMarker );
-                for ( String removed : result.removedItems_ ) {
-                    storage_.removeList(removed);
-                }
-                for ( SelectItemActivity.ValueChange modified : result.modifiedItems_ ) {
-                    storage_.renameList( modified.oldValue_, modified.newValue_ );
-                }
+                for ( String removed : result.removedItems_ )
+                    tasks.removeList(removed);
+
+                for ( SelectItemActivity.ValueChange modified : result.modifiedItems_ )
+                    tasks.renameList( modified.oldValue_, modified.newValue_ );
+
                 for ( String added: result.addedItems_ ) {
-                    storage_.newList( added );
-                    storage_.setStores(added, storage_.getStores(currentList_));
+                    tasks.newList( added );
+                    tasks.setStores(added, tasks.getStores(getCurrentList()));
                 }
                 //Update the selected list
-                if ( storage_.getLists().size() > 1 ) {
-                    currentList_ = result.selected_;
-                } else {
-                    //Fail safe in case no lists are remaining : we reuse the default use
-                    currentList_ = storage_.getLists().get(0);
-                }
+                if ( tasks.getLists().size() > 1 )
+                    getStorage().currentList_ = result.selected_;
+
+                //Fail safe in case no lists are remaining : we reuse the default use
+                else
+                    getStorage().currentList_ = tasks.getLists().get(0);
+
                 taskUpdate();
             } else {
                 System.out.println( "Error : activity action " + resultCode + " without bundled task" );
             }
-        }
-    }
-
-    //Store all tasks to a file
-    protected void backupData()
-    {
-        try (
-            FileOutputStream outputStream = openFileOutput( backupFile_, Context.MODE_PRIVATE);
-            ObjectOutputStream out = new ObjectOutputStream(outputStream);
-         )
-        {
-            out.writeObject(currentList_);
-            out.writeObject(storage_);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    protected void loadBackup()
-    {
-        try (
-            FileInputStream inputStream = openFileInput( backupFile_ );
-            ObjectInputStream in = new ObjectInputStream(inputStream);
-        )
-        {
-            currentList_ = (String) in.readObject();
-            storage_ = (TaskStorage) in.readObject();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        if ( storage_ == null || currentList_ == null || currentList_.isEmpty() ) {
-            currentList_ = getResources().getString(R.string.default_list_name);
-            storage_ = new TaskStorage( getResources() );
+        } else if ( requestCode == ActionType.ADD_RECIPE_ACTIVITY ) {
+            Bundle bundle = data.getExtras();
+            if ( bundle != null ) {
+                AddRecipeActivity.Output result = (AddRecipeActivity.Output) bundle.getSerializable(AddRecipeActivity.OutputMarker);
+                getTasks().addAll(result.tasks_);
+            }
+        } else if ( requestCode == ActionType.CHANGE_RECIPES_ACTIVITY ) {
+            taskUpdate();
         }
     }
 
     @Override
-    protected void onStop()
-    {
+    protected void onStop() {
         //Backup task data to a file
-        backupData();
+        getStorage().backupData();
 
         //We stop checking for updates
         periodicChecker_.removeCallbacks(periodicCallback_);
@@ -230,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
         } else if ( id == R.id.share_tasks ){
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("text/plain");
-            String text = "" + currentList_ + "':";
+            String text = "" + getStorage().currentList_ + "':";
             text += adapter_.adapters_.get( 0 ).toText();
             shareIntent.putExtra(Intent.EXTRA_TEXT, text );
             try {
@@ -239,37 +199,13 @@ public class MainActivity extends AppCompatActivity {
                 Toast toast = Toast.makeText(this, getResources().getString(R.string.no_available_app), Toast.LENGTH_LONG);
                 toast.show();
             }
+        } else if ( id == android.R.id.home ) {
+            DrawerLayout drawer = findViewById(R.id.drawer_layout);
+            drawer.openDrawer(GravityCompat.START);
+            return true;
         }
+
         return super.onOptionsItemSelected(item);
-    }
-
-    //Called on NewTaskButton click
-    public void onNewTask(View view)
-    {
-        launchTaskActivity(null);
-    }
-
-    public void launchTaskActivity(TaskData taskData)
-    {
-        Intent intent = new Intent(MainActivity.this, NewTaskActivity.class);
-        Bundle bundle = new Bundle();
-        NewTaskActivity.Input input = new NewTaskActivity.Input();
-
-        //We give as history of tasks up to 100 items from other lists + the history of the current list
-        for ( String list : storage_.getLists() ) {
-            if ( input.history_.size() < 100 && !list.equals( currentList_ ) ) {
-                input.history_.addAll( storage_.getHistory(list));
-            }
-        }
-        input.history_.addAll(storage_.getHistory(currentList_));
-        input.stores_ = storage_.getStores(currentList_);
-        if ( taskData != null ) {
-            input.task_ = taskData;
-            taskBeingModified_ = getTasks().indexOf(taskData);
-        }
-        bundle.putSerializable(NewTaskActivity.TaskDataMarker, input);
-        intent.putExtras(bundle);
-        startActivityForResult(intent, ActionType.TASK_ACTIVITY);
     }
 
     //Erases all Tasks that have been completed
@@ -291,13 +227,20 @@ public class MainActivity extends AppCompatActivity {
 
     void taskUpdate() {
         //Title : display current task
-        setTitle(currentList_);
+        setTitle(getCurrentList());
 
         //Update task lists
         adapter_.refresh();
 
         //Update clear menu button : hide if no tasks to clear
         invalidateOptionsMenu();
+
+        //Update add recipe button : hide if no recipe
+        FloatingActionButton addRecipeButton = findViewById(R.id.NewRecipeButton);
+        if ( getRecipes().recipes_.isEmpty() )
+            addRecipeButton.hide();
+        else
+            addRecipeButton.show();
 
         //Update completed counter
         ArrayList<TaskData> displayedTasks = adapter_.adapters_.get(0).getDisplayedTasks();
@@ -317,8 +260,8 @@ public class MainActivity extends AppCompatActivity {
         counterView.setText( display );
     }
 
-    //Returns the tasks of the current list
-    ArrayList<TaskData> getTasks() {
-        return storage_.getTasks(currentList_);
+    public void onAddRecipe(View v) {
+        Intent intent = new Intent(MainActivity.this, AddRecipeActivity.class);
+        startActivityForResult(intent, ActionType.ADD_RECIPE_ACTIVITY);
     }
 }

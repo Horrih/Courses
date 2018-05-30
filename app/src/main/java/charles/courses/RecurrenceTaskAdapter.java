@@ -17,7 +17,7 @@ import java.util.TreeMap;
 
 public class RecurrenceTaskAdapter extends TaskAdapter {
     RecurrenceTaskAdapter(Context context, ArrayList<TaskData> data) {
-        super( context, data );
+        super( context, data, true );
     }
 
     @Override

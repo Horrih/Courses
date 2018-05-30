@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/navigation_edit_lists"
+            android:icon="@drawable/ic_format_list_bulleted_24dp"
+            android:title="@string/edit_lists_activity" />
+        <item
+            android:id="@+id/navigation_edit_recipes"
+            android:icon="@drawable/ic_description_24dp"
+            android:title="@string/edit_recipes_activity" />
+    </group>
+</menu>

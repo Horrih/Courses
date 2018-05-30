@@ -22,13 +22,15 @@ import java.util.Locale;
 
 public class TaskAdapter extends BaseExpandableListAdapter {
     Context context_;
+    boolean checkable_;
     ArrayList<TaskData> original_data_ = null;
     ExpandableListView listView_ = null;
     protected ArrayList<Pair<String, ArrayList<TaskData>>> data_ = new ArrayList<>();
 
-    TaskAdapter(Context context, ArrayList<TaskData> data) {
-        this.context_ = context;
-        this.original_data_ = data;
+    TaskAdapter(Context context, ArrayList<TaskData> data, boolean checkable) {
+        checkable_ = checkable;
+        context_ = context;
+        original_data_ = data;
         refresh();
     }
 
@@ -106,6 +108,8 @@ public class TaskAdapter extends BaseExpandableListAdapter {
         ss.setSpan(new ForegroundColorSpan(qtyColor), startQty, displayText.length(), 0);
         taskName.setText( ss );
         taskCheckBox.setChecked(taskData.completed_);
+        if ( !checkable_ )
+            taskCheckBox.setVisibility(View.GONE);
         taskName.setPaintFlags(paintFlags);
         return row;
     }
@@ -128,8 +132,10 @@ public class TaskAdapter extends BaseExpandableListAdapter {
                 totalCompleted++;
             }
         }
-        String displayCompleted = totalCompleted + "/" + getChildrenCount( groupPosition );
-        completedView.setText( displayCompleted );
+        if ( checkable_ ) {
+            String displayCompleted = totalCompleted + "/" + getChildrenCount(groupPosition);
+            completedView.setText(displayCompleted);
+        }
         return view;
     }
 

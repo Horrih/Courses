@@ -1,7 +1,6 @@
 package charles.courses;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Pair;
@@ -16,7 +15,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -24,21 +22,19 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class NewTaskActivity extends AppCompatActivity {
+public class NewTaskActivity extends Activity {
 
     class TaskAction { static final int CREATED = 0, MODIFIED = 1, CANCELED = 2, DELETED = 3; }
     static String TaskDataMarker = "TaskData";
     static class Input implements Serializable
     {
         TaskData task_ = null;
-        ArrayList<TaskData> history_ = new ArrayList<>();
-        ArrayList<String> stores_ = new ArrayList<>();
+        String reason_ = "";
+        boolean enableRecurrence_ = true;
     }
-
     static class Output implements Serializable
     {
         TaskData task_ = new TaskData();
-        ArrayList<String> stores_ = new ArrayList<>();
     }
 
     private HashMap<String, Integer> durationStringToDays_ = new HashMap<>();
@@ -79,14 +75,13 @@ public class NewTaskActivity extends AppCompatActivity {
         }
 
         //Initialize the result list of stores to the input
-        output_.stores_.addAll(input_.stores_);
         Spinner storeSpinner = findViewById(R.id.NewTaskStoreInput);
-        ArrayAdapter<String> adapterStores = new ArrayAdapter<>(this, R.layout.spinner_style, output_.stores_ );
+        ArrayAdapter<String> adapterStores = new ArrayAdapter<>(this, R.layout.spinner_style, getStores() );
         adapterStores.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         storeSpinner.setAdapter(adapterStores);
 
         //We initialize the various widgets from the history of tasks
-        initFromHistory( input_.history_ );
+        initFromHistory();
 
         //If there is a task to modify, we use the task data to initialize the input widgets
         if ( input_.task_ != null ) {
@@ -95,6 +90,13 @@ public class NewTaskActivity extends AppCompatActivity {
         }
         else {
             setTitle(getResources().getString(R.string.title_activity_new_task));
+
+            //Initialize the reason from the one in the input if there is one and lock edition of this field
+            if ( !input_.reason_.isEmpty() ) {
+                AutoCompleteTextView inputReason = findViewById(R.id.NewTaskReasonInput);
+                inputReason.setText(input_.reason_);
+                inputReason.setFocusable(false);
+            }
         }
 
         //We reload the state of the recurrence widgets, after the state has been reloaded in case of orientation change
@@ -159,16 +161,26 @@ public class NewTaskActivity extends AppCompatActivity {
         durationSpinner.setSelection(1);
     }
 
-    private void initFromHistory( ArrayList<TaskData> tasks ) {
+    private void initFromHistory() {
+        //We give as history of tasks up to 100 items from other lists + the history of the current list
+        final ArrayList<TaskData> history = new ArrayList<>();
+        for ( String list : getStorage().tasks_.getLists() )
+            if ( history.size() < 100 && !list.equals( getStorage().currentList_ ) )
+                history.addAll( getStorage().tasks_.getHistory(list));
+
+        //We also add the full history of the current list
+        history.addAll(getStorage().tasks_.getHistory(getStorage().currentList_));
         Set<String> names = new TreeSet<>();
         Set<String> reasons = new TreeSet<>();
-        for ( TaskData task : tasks ) {
+        for ( TaskData task : history ) {
             names.add( task.name_ );
             reasons.add(task.reason_);
         }
-        if ( !tasks.isEmpty() ) {
-            setStore(tasks.get(0).store_);
-        }
+
+        //Reuse the last store by default
+        if ( !history.isEmpty() )
+            setStore(history.get(0).store_);
+
         ArrayAdapter<String> adapterNames   = new ArrayAdapter<>(this, R.layout.completion_item, new ArrayList<>(names));
         ArrayAdapter<String> adapterReasons = new ArrayAdapter<>(this, R.layout.completion_item, new ArrayList<>(reasons));
         AutoCompleteTextView namesInput  = findViewById(R.id.NewTaskInput);
@@ -185,11 +197,9 @@ public class NewTaskActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String completedText = ((TextView) view).getText().toString();
-                for ( TaskData task : input_.history_ ) {
-                    if ( task.name_.equals( completedText ) ) {
+                for ( TaskData task : history )
+                    if ( task.name_.equals( completedText ) )
                         initFromTask(task, false);
-                    }
-                }
             }
         });
     }
@@ -229,13 +239,12 @@ public class NewTaskActivity extends AppCompatActivity {
                 taskData.recurrence_.period_ = period;
                 taskData.recurrence_.number_ = number;
             }
-
-            //Serialization to send result back to MainActivity
-            Intent result = new Intent();
+            //Serialization to send result task back to the parent activity
             Bundle bundle = new Bundle();
             bundle.putSerializable(TaskDataMarker, output_);
-            result.putExtras(bundle);
-            setResult( action, result);
+            Intent intent = new Intent();
+            intent.putExtras(bundle);
+            setResult( action, intent);
         }
         finish();
     }
@@ -247,8 +256,7 @@ public class NewTaskActivity extends AppCompatActivity {
     }
 
     //This functions refreshes the color of the Recurrence widgets : gray if switch is disabled
-    public void refreshRecurrenceDisplay()
-    {
+    public void refreshRecurrenceDisplay() {
         //We recover the state of the button
         Switch switchButton = findViewById(R.id.EnableRecurrenceSwitch);
         boolean enabled = switchButton.isChecked();
@@ -262,6 +270,15 @@ public class NewTaskActivity extends AppCompatActivity {
         durationTextView.setEnabled(enabled);
         numberSpinner.setEnabled(enabled);
         durationSpinner.setEnabled(enabled);
+
+        //If recurrence is forbidden, hide all related elements
+        if ( !input_.enableRecurrence_ ) {
+            switchButton.setVisibility(View.GONE);
+            recurrenceTextView.setVisibility(View.GONE);
+            durationTextView.setVisibility(View.GONE);
+            numberSpinner.setVisibility(View.GONE);
+            durationSpinner.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -294,8 +311,8 @@ public class NewTaskActivity extends AppCompatActivity {
         Bundle bundle = data.getExtras();
         if ( bundle != null ) {
             SelectItemActivity.Result result = (SelectItemActivity.Result) bundle.getSerializable( SelectItemActivity.ResultMarker );
-            output_.stores_.clear();
-            output_.stores_.addAll(result.updatedList_);
+            getStores().clear();
+            getStores().addAll(result.updatedList_);
             setStore(result.selected_);
             Spinner storeSpinner = findViewById(R.id.NewTaskStoreInput);
             ((ArrayAdapter<String>)storeSpinner.getAdapter()).notifyDataSetChanged();
@@ -307,16 +324,16 @@ public class NewTaskActivity extends AppCompatActivity {
     private String getStore() {
         Spinner stores = findViewById(R.id.NewTaskStoreInput);
         String store = getResources().getString(R.string.default_category);
-        if ( !output_.stores_.isEmpty() ) {
-            store = output_.stores_.get(stores.getSelectedItemPosition());
-        }
+        if ( !getStores().isEmpty() )
+            store = getStores().get(stores.getSelectedItemPosition());
+
         return store;
     }
 
     private void setStore(String store) {
         Spinner stores = findViewById(R.id.NewTaskStoreInput);
-        for ( int id = 0; id < output_.stores_.size(); id++ ) {
-            if ( output_.stores_.get(id).equals( store ) ) {
+        for ( int id = 0; id < getStores().size(); id++ ) {
+            if ( getStores().get(id).equals( store ) ) {
                 stores.setSelection(id);
                 return;
             }
@@ -328,7 +345,7 @@ public class NewTaskActivity extends AppCompatActivity {
         Bundle bundle = new Bundle();
         SelectItemActivity.Input items = new SelectItemActivity.Input();
         items.title_ = getResources().getString(R.string.choose_store_activity);
-        items.values_ = output_.stores_;
+        items.values_ = getStores();
         items.selected_ = getStore();
         bundle.putSerializable(SelectItemActivity.InputMarker, items);
         intent.putExtras(bundle);

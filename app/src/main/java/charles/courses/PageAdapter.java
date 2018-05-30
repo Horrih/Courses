@@ -3,16 +3,12 @@ package charles.courses;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ExpandableListView;
 import android.widget.Toast;
-
-import java.lang.reflect.Array;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -28,8 +24,8 @@ class PageAdapter extends FragmentPagerAdapter {
         super(activity.getSupportFragmentManager());
         activity_ = activity;
         updateTasks();
-        adapters_.add( new TaskAdapter( activity, tasks_ ) );
-        adapters_.add( new TaskAdapter( activity, tasks_ ) {
+        adapters_.add( new TaskAdapter( activity, tasks_, true ) );
+        adapters_.add( new TaskAdapter( activity, tasks_, true ) {
             @Override
             protected String getGroupString( TaskData data ) {
                 return data.reason_;
@@ -135,17 +131,7 @@ class PageAdapter extends FragmentPagerAdapter {
             });
 
             //Make long click open the modify task activity
-            listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-                @Override
-                public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                    if (ExpandableListView.getPackedPositionType(id) == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
-                        TaskData task = (TaskData) view.getTag();
-                        ((MainActivity)getContext()).launchTaskActivity(task);
-                        return true;
-                    }
-                    return false;
-                }
-            });
+            ((MainActivity) getContext()).enableTaskModification(listView);
             return view;
         }
 

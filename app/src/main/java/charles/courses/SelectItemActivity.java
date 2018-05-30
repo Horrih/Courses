@@ -32,6 +32,7 @@ public class SelectItemActivity extends AppCompatActivity {
     static class Input implements java.io.Serializable {
         String title_ = "";
         String selected_ = "";
+        boolean enableItemsModifications_ = true;
         ArrayList<String> values_ = new ArrayList<>();
     }
 
@@ -102,17 +103,16 @@ public class SelectItemActivity extends AppCompatActivity {
         for ( int i = 0; i < input_.values_.size(); i++ ) {
             String oldItem = input_.values_.get( i );
             String newItem = adapter_.items_.get(i);
-            if ( !oldItem.equals(newItem) ) {
+            if ( !oldItem.equals(newItem) )
                 result_.modifiedItems_.add( new ValueChange( oldItem, newItem ) );
-            }
         }
 
-        for ( int i = input_.values_.size(); i < adapter_.getItemCount(); i++ ) {
+        for ( int i = input_.values_.size(); i < adapter_.getItemCount(); i++ )
             result_.addedItems_.add( adapter_.items_.get(i));
-        }
-        if ( adapter_.getItemCount() > 0 ) {
+
+        if ( adapter_.getItemCount() > 0 && adapter_.selected_ >= 0)
             result_.selected_ = adapter_.items_.get( adapter_.selected_ );
-        }
+
         result_.updatedList_.addAll( adapter_.items_ );
 
         //Serialization to send result back to MainActivity
@@ -127,6 +127,8 @@ public class SelectItemActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_select_item, menu);
+        MenuItem addButton = menu.findItem(R.id.add_item);
+        addButton.setVisible(input_.enableItemsModifications_);
         return true;
     }
 
@@ -142,7 +144,7 @@ public class SelectItemActivity extends AppCompatActivity {
     class SelectItemAdapter extends RecyclerView.Adapter<SelectItemAdapter.SelectItemViewHolder> {
         final ArrayList<String> items_ = new ArrayList<>();
         SelectItemActivity activity_;
-        int selected_ = 0;
+        int selected_ = -1;
         int pendingEdit_ = -1;
 
         class SelectItemViewHolder extends RecyclerView.ViewHolder{
@@ -154,7 +156,10 @@ public class SelectItemActivity extends AppCompatActivity {
                 text_         = itemView.findViewById(R.id.item_text);
                 editButton_   = itemView.findViewById(R.id.edit_item);
                 removeButton_ = itemView.findViewById(R.id.remove_item);
-
+                if ( !input_.enableItemsModifications_ ) {
+                    editButton_.setVisibility(View.GONE);
+                    removeButton_.setVisibility(View.GONE);
+                }
                 //Update the data on text changed
                 text_.addTextChangedListener( new TextWatcher() {
                     @Override public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {}
@@ -187,7 +192,7 @@ public class SelectItemActivity extends AppCompatActivity {
                             text_.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    text_.clearFocus();
+                                    finish();
                                 }
                             });
                         }

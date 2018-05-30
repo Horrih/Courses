@@ -3,6 +3,8 @@
     <string name="store">Rayon</string>
     <string name="reason">Thème</string>
     <string name="coming_up">À Venir</string>
+    <string name="title_activity_edit_recipes">Recette à éditer</string>
+    <string name="title_activity_choose_recipe">Choix de la recette</string>
     <string name="title_activity_new_task">Nouvelle tâche</string>
     <string name="title_activity_modify_task">Modifier tâche</string>
     <string name="clear_tasks_menu">Actualiser</string>
@@ -16,9 +18,12 @@
     <string name="edit_button">Bouton Modifier</string>
     <string name="delete_button">Bouton Supprimer</string>
     <string name="no_tasks">Aucune tâche en cours</string>
+    <string name="no_ingredients">Aucun ingrédient pour le moment</string>
     <string name="edit_lists_activity">Mes Listes</string>
+    <string name="edit_recipes_activity">Mes Recettes</string>
     <string name="add_item_menu">Ajout d\'un nouvel élément</string>
     <string name="validate_task_menu">Validation de la tâche</string>
+    <string name="validate_recipe_menu">Validation de la recette</string>
     <string name="delete_task_menu">Suppression de la tâche</string>
     <string name="days">Jours</string>
     <string name="weeks">Semaines</string>
@@ -39,4 +44,5 @@
     <string name="cleaning">Entretien</string>
     <string name="frozen_food">Surgelés</string>
     <string name="choose_store_activity">Mes Rayons</string>
+    <string name="nb_people">Nombre de Personnes</string>
 </resources>
