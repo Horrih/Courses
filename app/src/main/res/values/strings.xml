@@ -45,4 +45,71 @@
     <string name="frozen_food">Surgelés</string>
     <string name="choose_store_activity">Mes Rayons</string>
     <string name="nb_people">Nombre de Personnes</string>
+
+    <!-- Tutorial resources /-->
+    <string name="tutorial">Tutoriel</string>
+    <string name="tuto_next">Suivant</string>
+    <string name="tuto_end">Terminer</string>
+    <string name="tuto_launch_title">Bienvenue dans EasyList !</string>
+    <string name="tuto_launch_field">Nous vous proposons un tutoriel pour vous expliquer ses différentes fonctionnalités, souhaitez-vous le suivre?</string>
+    <string name="tuto_proceed_yes">C\'est parti !</string>
+    <string name="tuto_proceed_no">Non merci</string>
+    <string name="tuto_welcome_title">Bienvenue dans le tutoriel d\'EasyList !</string>
+    <string name="tuto_welcome_field">EasyList vous permet de gérer facilement vos listes de courses,
+        ou toute autre checklist\nLaissez-vous guider à travers ce tutoriel pour en découvrir les fonctionnalités</string>
+    <string name="tuto_end_title">Fin du tutoriel</string>
+    <string name="tuto_end_field">Ce tutoriel est à présent terminé, vous pouvez le retrouver dans le menu latéral\nNous espérons qu\'EasyList vous sera utile !</string>
+    <string name="tuto_add_task_title">Ajouter une tâche</string>
+    <string name="tuto_add_task_field">Ce bouton permet d\'ajouter une tâche à la liste courante</string>
+    <string name="tuto_add_task_name">Lait</string>
+    <string name="tuto_add_task_qty">6 Litres</string>
+    <string name="tuto_add_task_reason">Petit Déjeuner</string>
+    <string name="tuto_choose_name_title">Choix du nom de la tâche</string>
+    <string name="tuto_choose_name_field">Ce champs renseigne le nom de la tâche</string>
+    <string name="tuto_choose_qty_title">(Optionnel) Indiquer une quantité</string>
+    <string name="tuto_choose_qty_field">Ce champs renseigne la quantité souhaitée de la tâche</string>
+    <string name="tuto_choose_store_title">Indiquer le rayon de la tâche</string>
+    <string name="tuto_choose_store_field">Peut être un magasin, rayon, lieu\nPermet de regrouper vos tâches par endroit</string>
+    <string name="tuto_choose_reason_title">(Optionnel) Indiquer un thème</string>
+    <string name="tuto_choose_reason_field">Grâce à ce champs, vous pouvez regrouper vos tâches de manière logique\nPar exemple
+        une recette, ou une soirée</string>
+    <string name="tuto_recurrence_enable_title">Activer les rappels automatiques</string>
+    <string name="tuto_recurrence_enable_field">Certaines tâches reviennent régulièrement, comme acheter du lait\nCliquer ici
+        pour activer des rappels automatiques</string>
+    <string name="tuto_recurrence_time_title">Choisir une durée avant le prochain rappel</string>
+    <string name="tuto_recurrence_time_field">Réglez ici la durée avant le prochain rappel\nPar exemple racheter du lait tous les 2 mois</string>
+    <string name="tuto_cross_task_title">Cocher vos tâches</string>
+    <string name="tuto_cross_task_field">Pour cocher une tâche, cliquer dessus</string>
+    <string name="tuto_modify_task_title">Modifier une tâche</string>
+    <string name="tuto_modify_task_field">Pour modifer une tâche, appuyer longuement sur elle</string>
+    <string name="tuto_remove_crossed_title">Supprimer les tâches terminées</string>
+    <string name="tuto_remove_crossed_field">Le bouton Corbeille vous permet de supprimer les tâches terminées</string>
+    <string name="tuto_share_tasks_title">Partagez votre liste à un ami</string>
+    <string name="tuto_share_tasks_field">Le bouton Partager vous permet d\'envoyer à un ami votre liste actuelle par SMS, WhatsApp, ou Messenger</string>
+    <string name="tuto_tab1_title">Onglet 1 : Vos tâches par rayon</string>
+    <string name="tuto_tab1_field">Dans cet onglet, vos tâches sont regroupées selon le rayon que vous avez renseigné</string>
+    <string name="tuto_tab2_title">Onglet 2 : Vos tâches par thème</string>
+    <string name="tuto_tab2_field">Dans cet onglet vos tâches sont ici regroupées par thème, c\'est à dire selon la raison pour laquelle vous les avez ajoutées</string>
+    <string name="tuto_tab3_title">Onglet 3 : Vos tâches à venir</string>
+    <string name="tuto_tab3_field">Dans cet onglet, vous pouvez voir vos tâches récurrentes en attente\nElles sont classées selon leur échéance</string>
+    <string name="tuto_multi_list_title">Créez d\'autres listes</string>
+    <string name="tuto_multi_list_field">N\'hésitez pas à créer d\'autres listes :\nListe d\'anniversaire, de vacances, ou autre</string>
+    <string name="tuto_recipe_title">Ajoutez des recettes</string>
+    <string name="tuto_recipe_field">Dans ce menu, ajoutez vos recettes du quotidien</string>
+    <string name="tuto_add_recipe_title">Ajoutez les ingrédients de vos recettes à votre liste</string>
+    <string name="tuto_add_recipe_field">Une fois vos recettes créées, cliquez sur ce bouton pour ajouter les ingrédients à votre liste de courses</string>
+    <string name="tuto_task_reason_pizza">Pizza Maison</string>
+    <string name="tuto_task_reason_party">Soirée Samedi</string>
+    <string name="tuto_task_name_flour">Farine</string>
+    <string name="tuto_task_name_yeast">Levure de boulanger</string>
+    <string name="tuto_task_name_mozza">Mozzarella</string>
+    <string name="tuto_task_name_tomato">Pulpe de tomate</string>
+    <string name="tuto_task_name_salad">Roquette</string>
+    <string name="tuto_task_name_tortilla">Tortillas</string>
+    <string name="tuto_task_name_chips">Chips</string>
+    <string name="tuto_task_name_peppers">Poivrons</string>
+    <string name="tuto_task_name_maize">Maïs</string>
+    <string name="tuto_task_name_guacamole">Guacamole</string>
+    <string name="tuto_task_name_water">Eau Minérale</string>
+    <string name="tuto_task_name_milk">Lait</string>
 </resources>

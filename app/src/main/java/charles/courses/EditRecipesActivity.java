@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.TreeMap;
 
 public class EditRecipesActivity extends Activity {
-    protected RecipeStorage.Recipe chosenRecipe_ = new RecipeStorage.Recipe( "" );
+    protected RecipeStorage.Recipe chosenRecipe_ = null;
     protected boolean hideValidateButton_ = true;
     protected TaskAdapter adapter_ = null;
     static class ActivityType { static int TASK_ACTIVITY = 0, SELECT_RECIPE = 1;}
@@ -83,6 +83,7 @@ public class EditRecipesActivity extends Activity {
 
     void initFromRecipe( String recipeName ) {
         setTitle(recipeName);
+        chosenRecipe_ = new RecipeStorage.Recipe(recipeName);
         chosenRecipe_.copyFrom( getRecipes().recipes_.get(recipeName) );
 
         //Initialize the spinner representing the number of people
@@ -98,6 +99,7 @@ public class EditRecipesActivity extends Activity {
         nbPeople.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 chosenRecipe_.nbPeople_ = i + 1;
+                invalidateOptionsMenu();
             }
             @Override public void onNothingSelected(AdapterView<?> adapterView) {}
         });

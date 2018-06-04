@@ -8,4 +8,5 @@
     <color name="text">#353535</color>
     <color name="textLight">#494949</color>
     <color name="textGrayed">#a6a5a5</color>
+    <color name="backgroundTransparent">#d52e2e2e</color>
 </resources>

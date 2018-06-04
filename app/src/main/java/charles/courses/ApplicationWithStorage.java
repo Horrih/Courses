@@ -7,10 +7,10 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.Collections;
 
 public class ApplicationWithStorage extends Application {
     String currentList_ = "";
+    Tutorial tutorial_ = new Tutorial();
     TaskStorage tasks_ = null;
     RecipeStorage recipes_ = null;
     private String backupFile_ = "CoursesBackup.save";
@@ -21,7 +21,6 @@ public class ApplicationWithStorage extends Application {
         loadBackup();
         super.onCreate();
     }
-
 
     //Store all tasks and recipes to a file
     void backupData() {
@@ -53,13 +52,12 @@ public class ApplicationWithStorage extends Application {
         if ( currentList_ == null || currentList_.isEmpty() )
             currentList_ = getResources().getString(R.string.default_list_name);
 
-        if ( tasks_ == null )
-            tasks_ = new TaskStorage( getResources() );
+        if ( tasks_ == null ) {
+            tasks_ = new TaskStorage(getResources());
+            tutorial_.step_ = Tutorial.Step.START;
+         }
 
         if ( recipes_ == null )
             recipes_ = new RecipeStorage();
-
-        for ( String listName : tasks_.getLists() )
-            tasks_.getHistory(listName).removeAll(Collections.singleton(null));
     }
 }

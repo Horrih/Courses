@@ -13,6 +13,28 @@ class  TaskData implements java.io.Serializable
     String reason_ = "";
     RecurrenceData recurrence_ = null;
 
+    TaskData() {
+        this( "");
+    }
+
+    TaskData( String name ) {
+        this( name, "");
+    }
+
+    TaskData( String name, String store ) {
+        this( name, store, "" );
+    }
+
+    TaskData( String name, String store, String reason) {
+        this(name, store, reason, "");
+    }
+    TaskData( String name, String store, String reason, String qty ) {
+        name_ = name;
+        qty_ = qty;
+        store_ = store;
+        reason_ = reason;
+    }
+
     static class RecurrenceData implements java.io.Serializable
     {
         static final ArrayList<Integer> periods = new ArrayList<>();

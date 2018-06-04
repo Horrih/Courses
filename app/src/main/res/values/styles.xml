@@ -33,4 +33,16 @@
         <item name="android:textCursorDrawable">@drawable/black_cursor</item>
         <item name="android:textIsSelectable">false</item>
     </style>
+
+
+    <style name="CustomShowCase" parent="ShowcaseView">
+        <item name="sv_backgroundColor">@color/backgroundTransparent</item>
+        <item name="sv_showcaseColor">@color/colorAccent</item>
+        <item name="sv_titleTextAppearance">@style/ShowCaseTitle</item>
+    </style>
+
+    <style name="ShowCaseTitle" parent="TextAppearance.ShowcaseView.Title.Light">
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:layout_marginTop">100dp</item>
+    </style>
 </resources>

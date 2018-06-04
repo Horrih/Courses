@@ -106,6 +106,8 @@ public class NewTaskActivity extends Activity {
                 refreshRecurrenceDisplay()  ;
             }
         });
+
+        getStorage().tutorial_.nextTutorialStep(this);
     }
 
     private void initFromTask( TaskData task, boolean initRecurrenceData ) {

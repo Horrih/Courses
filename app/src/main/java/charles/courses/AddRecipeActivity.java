@@ -54,6 +54,7 @@ public class AddRecipeActivity extends EditRecipesActivity {
             }
             @Override public void onNothingSelected(AdapterView<?> adapterView) {}
         });
+        invalidateOptionsMenu();
     }
 
     @Override
@@ -79,7 +80,7 @@ public class AddRecipeActivity extends EditRecipesActivity {
 
     @Override
     boolean showValidateButton() {
-        return !chosenRecipe_.tasks_.isEmpty();
+        return chosenRecipe_ != null && !chosenRecipe_.tasks_.isEmpty();
     }
 
     @Override

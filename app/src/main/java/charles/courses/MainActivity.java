@@ -20,11 +20,10 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class MainActivity extends Activity {
-    public class ActionType { static final int TASK_ACTIVITY = 0, CHANGE_LISTS_ACTIVITY = 1, CHANGE_RECIPES_ACTIVITY = 2, ADD_RECIPE_ACTIVITY = 3; }
+    class ActionType { static final int TASK_ACTIVITY = 0, CHANGE_LISTS_ACTIVITY = 1, CHANGE_RECIPES_ACTIVITY = 2, ADD_RECIPE_ACTIVITY = 3; }
     PageAdapter adapter_;
     final Handler periodicChecker_ = new Handler();
     Runnable periodicCallback_;
-
     ViewPager taskPager_;
 
     @Override
@@ -56,6 +55,15 @@ public class MainActivity extends Activity {
                 periodicChecker_.postDelayed( this, 60 * 1000 );
             }
         };
+
+        if ( getStorage().tutorial_.step_ != Tutorial.Step.NONE )
+            launchTutorial();
+    }
+
+    void launchTutorial() {
+        //If we are performing the tutorial : go to the next step
+        getStorage().tutorial_.step_ = Tutorial.Step.START;
+        getStorage().tutorial_.nextTutorialStep(this);
     }
 
     void initToolbar() {
@@ -84,7 +92,8 @@ public class MainActivity extends Activity {
                     } else if ( id == R.id.navigation_edit_recipes ) {
                         Intent intent = new Intent(MainActivity.this, EditRecipesActivity.class);
                         startActivityForResult(intent, ActionType.CHANGE_RECIPES_ACTIVITY);
-                    }
+                    } else if ( id == R.id.navigation_tutorial )
+                        launchTutorial();
                     return true;
                 }
             }
@@ -202,7 +211,6 @@ public class MainActivity extends Activity {
         } else if ( id == android.R.id.home ) {
             DrawerLayout drawer = findViewById(R.id.drawer_layout);
             drawer.openDrawer(GravityCompat.START);
-            return true;
         }
 
         return super.onOptionsItemSelected(item);

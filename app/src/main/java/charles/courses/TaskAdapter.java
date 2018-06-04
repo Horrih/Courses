@@ -22,10 +22,10 @@ import java.util.Locale;
 
 public class TaskAdapter extends BaseExpandableListAdapter {
     Context context_;
-    boolean checkable_;
+    private boolean checkable_;
     ArrayList<TaskData> original_data_ = null;
     ExpandableListView listView_ = null;
-    protected ArrayList<Pair<String, ArrayList<TaskData>>> data_ = new ArrayList<>();
+    ArrayList<Pair<String, ArrayList<TaskData>>> data_ = new ArrayList<>();
 
     TaskAdapter(Context context, ArrayList<TaskData> data, boolean checkable) {
         checkable_ = checkable;
