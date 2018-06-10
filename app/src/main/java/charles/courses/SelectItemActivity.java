@@ -289,7 +289,6 @@ public class SelectItemActivity extends AppCompatActivity {
                 holder.text_.post(new Runnable() {
                     @Override
                     public void run() {
-                        notifyItemChanged(prevSelected);
                         InputMethodManager mgr = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                         mgr.showSoftInput(holder.text_, InputMethodManager.SHOW_IMPLICIT);
                     }
