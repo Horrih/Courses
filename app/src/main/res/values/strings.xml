@@ -45,6 +45,7 @@
     <string name="frozen_food">Surgelés</string>
     <string name="choose_store_activity">Mes Rayons</string>
     <string name="nb_people">Nombre de Personnes</string>
+    <string name="example">Exemple de texte</string>
 
     <!-- Tutorial resources /-->
     <string name="tutorial">Tutoriel</string>

@@ -79,7 +79,7 @@ public class MainActivity extends Activity {
                 public boolean onNavigationItemSelected(MenuItem item) {
                     drawerLayout.closeDrawers();
                     int id = item.getItemId();
-                    if (id == R.id.navigation_edit_lists ) {
+                    if (id == R.id.navigation_edit_lists) {
                         Intent intent = new Intent(MainActivity.this, SelectItemActivity.class);
                         SelectItemActivity.Input items = new SelectItemActivity.Input();
                         items.title_ = getResources().getString(R.string.edit_lists_activity);
@@ -89,11 +89,16 @@ public class MainActivity extends Activity {
                         bundle.putSerializable(SelectItemActivity.InputMarker, items);
                         intent.putExtras(bundle);
                         startActivityForResult(intent, ActionType.CHANGE_LISTS_ACTIVITY);
-                    } else if ( id == R.id.navigation_edit_recipes ) {
+                    } else if (id == R.id.navigation_edit_recipes) {
                         Intent intent = new Intent(MainActivity.this, EditRecipesActivity.class);
                         startActivityForResult(intent, ActionType.CHANGE_RECIPES_ACTIVITY);
-                    } else if ( id == R.id.navigation_tutorial )
+                    } else if (id == R.id.navigation_tutorial) {
                         launchTutorial();
+                    } else {
+                        TextView text = item.getActionView().findViewById(R.id.submenu_text);
+                        getStorage().currentList_ = text.getText().toString();
+                        taskUpdate();
+                    }
                     return true;
                 }
             }
@@ -236,6 +241,21 @@ public class MainActivity extends Activity {
     void taskUpdate() {
         //Title : display current task
         setTitle(getCurrentList());
+
+        //Refresh du menu de navigation
+        NavigationView navigationView = findViewById(R.id.NavigationView);
+        Menu menu = navigationView.getMenu();
+        ArrayList<String> lists = getStorage().tasks_.getLists();
+        int maxNbItems = 8;
+        for ( int i = 0; i < maxNbItems; i++ ) {
+            menu.removeItem(i + 1 );
+        }
+        for ( int i = 0; i < maxNbItems && i < lists.size(); i++ ) {
+            MenuItem item = menu.add(Menu.NONE, i + 1, i + 1, null).setActionView(R.layout.submenu_item);
+            View view = item.getActionView();
+            ((TextView) view.findViewById(R.id.submenu_text)).setText(lists.get(i));
+        }
+        navigationView.invalidate();
 
         //Update task lists
         adapter_.refresh();

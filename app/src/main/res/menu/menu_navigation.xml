@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/navigation_edit_lists"
@@ -8,10 +9,12 @@
         <item
             android:id="@+id/navigation_edit_recipes"
             android:icon="@drawable/ic_description_24dp"
+            android:orderInCategory="10"
             android:title="@string/edit_recipes_activity" />
         <item
             android:id="@+id/navigation_tutorial"
             android:icon="@drawable/ic_help_outline_24dp"
+            android:orderInCategory="11"
             android:title="@string/tutorial" />
     </group>
 </menu>
