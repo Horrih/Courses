@@ -242,8 +242,11 @@ public class SelectItemActivity extends AppCompatActivity {
                         //edited item becomes the new selected item.
                         //A new view holder will be created to enable the font change
                         //This one will be deleted/recycled and can not be used directly
-                        pendingEdit_ = getAdapterPosition();
-                        notifyItemChanged(pendingEdit_);
+                        final int lastSelected = selected_;
+                        selected_ = getAdapterPosition();
+                        pendingEdit_ = selected_;
+                        notifyItemChanged(lastSelected);
+                        notifyItemChanged(selected_);
                     }
                 });
             }
