@@ -188,11 +188,11 @@ public class Tutorial implements OnShowcaseEventListener {
             activity_ = mainActivity_;
             delayedStep(1000);
         } else if (step_ == Step.CROSS_TASK) {
-            ExpandableListView tasks = mainActivity_.taskPager_.getFocusedChild().findViewById(R.id.TaskPage);
+            ExpandableListView tasks = mainActivity_.adapter_.adapters_.get(0).listView_;
             View task = tasks.getChildAt( 9).findViewById(R.id.TaskName);
             showcase(activity, task, res.getString(R.string.tuto_cross_task_title), res.getString(R.string.tuto_cross_task_field));
         } else if (step_ == Step.MODIFY_TASK) {
-            ExpandableListView tasks = mainActivity_.taskPager_.getFocusedChild().findViewById(R.id.TaskPage);
+            ExpandableListView tasks = mainActivity_.adapter_.adapters_.get(0).listView_;
             View task = tasks.getChildAt(9).findViewById(R.id.TaskName);
             showcase(activity, task, res.getString(R.string.tuto_modify_task_title), res.getString(R.string.tuto_modify_task_field));
         } else if (step_ == Step.REMOVE_COMPLETED) {
@@ -227,18 +227,21 @@ public class Tutorial implements OnShowcaseEventListener {
             delayedStep();
         } else if ( step_ == Step.MULTI_LIST ) {
             NavigationView navigationView = activity_.findViewById(R.id.NavigationView);
-            View view = ((ViewGroup) navigationView.getChildAt(0)).getChildAt(1);
+            ViewGroup group = (ViewGroup) navigationView.getChildAt(0);
+            View view = group.getChildAt(1 );
             showcase(activity_, view, res.getString(R.string.tuto_multi_list_title), res.getString(R.string.tuto_multi_list_field));
         } else if ( step_ == Step.CREATE_RECIPE ) {
             NavigationView navigationView = activity_.findViewById(R.id.NavigationView);
-            View view = ((ViewGroup) navigationView.getChildAt(0)).getChildAt(2);
+            ViewGroup group = (ViewGroup) navigationView.getChildAt(0);
+            View view = group.getChildAt(group.getChildCount() - 2 );
             showcase(activity_, view, res.getString(R.string.tuto_recipe_title), res.getString(R.string.tuto_recipe_field));
         } else if ( step_ == Step.ADD_RECIPE ) {
             FloatingActionButton addRecipe = activity.findViewById(R.id.NewRecipeButton);
             showcase(activity_, addRecipe, res.getString(R.string.tuto_add_recipe_title), res.getString(R.string.tuto_add_recipe_field));
         } else if ( step_ == Step.END ) {
             NavigationView navigationView = activity_.findViewById(R.id.NavigationView);
-            View view = ((ViewGroup) navigationView.getChildAt(0)).getChildAt(3);
+            ViewGroup group = (ViewGroup) navigationView.getChildAt(0);
+            View view = group.getChildAt(group.getChildCount() - 1 );
             showcase(activity_, view, res.getString(R.string.tuto_end_title), res.getString(R.string.tuto_end_field));;
         } else if ( step_ == Step.CLEANUP ) {
             DrawerLayout drawer = activity.findViewById(R.id.drawer_layout);
