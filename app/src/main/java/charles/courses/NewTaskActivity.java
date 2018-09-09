@@ -74,11 +74,8 @@ public class NewTaskActivity extends Activity {
             input_ = (Input) bundle.getSerializable(TaskDataMarker);
         }
 
-        //Initialize the result list of stores to the input
-        Spinner storeSpinner = findViewById(R.id.NewTaskStoreInput);
-        ArrayAdapter<String> adapterStores = new ArrayAdapter<>(this, R.layout.spinner_style, getStores() );
-        adapterStores.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        storeSpinner.setAdapter(adapterStores);
+        //Update the list of stores
+        updateStores();
 
         //We initialize the various widgets from the history of tasks
         initFromHistory();
@@ -313,14 +310,20 @@ public class NewTaskActivity extends Activity {
         Bundle bundle = data.getExtras();
         if ( bundle != null ) {
             SelectItemActivity.Result result = (SelectItemActivity.Result) bundle.getSerializable( SelectItemActivity.ResultMarker );
-            getStores().clear();
-            getStores().addAll(result.updatedList_);
+            getStorage().tasks_.setStores( getCurrentList(), result.updatedList_ );
+            updateStores();
             setStore(result.selected_);
-            Spinner storeSpinner = findViewById(R.id.NewTaskStoreInput);
-            ((ArrayAdapter<String>)storeSpinner.getAdapter()).notifyDataSetChanged();
         } else {
             System.out.println( "Error : new task activity action " + resultCode + " without bundled task" );
         }
+    }
+
+    protected void updateStores() {
+       //Initialize the result list of stores to the stores of the current list
+        Spinner storeSpinner = findViewById(R.id.NewTaskStoreInput);
+        ArrayAdapter<String> adapterStores = new ArrayAdapter<>(this, R.layout.spinner_style, getStores() );
+        adapterStores.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        storeSpinner.setAdapter(adapterStores);
     }
 
     private String getStore() {
