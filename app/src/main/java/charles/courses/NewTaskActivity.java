@@ -161,14 +161,13 @@ public class NewTaskActivity extends Activity {
     }
 
     private void initFromHistory() {
-        //We give as history of tasks up to 100 items from other lists + the history of the current list
+        //We give as history of tasks up to N items from other lists + the history of the current list
         final ArrayList<TaskData> history = new ArrayList<>();
+        history.addAll(getStorage().tasks_.getHistory(getStorage().currentList_));
         for ( String list : getStorage().tasks_.getLists() )
-            if ( history.size() < 100 && !list.equals( getStorage().currentList_ ) )
+            if ( history.size() < 1000 && !list.equals( getStorage().currentList_ ) )
                 history.addAll( getStorage().tasks_.getHistory(list));
 
-        //We also add the full history of the current list
-        history.addAll(getStorage().tasks_.getHistory(getStorage().currentList_));
         Set<String> names = new TreeSet<>();
         Set<String> reasons = new TreeSet<>();
         for ( TaskData task : history ) {
