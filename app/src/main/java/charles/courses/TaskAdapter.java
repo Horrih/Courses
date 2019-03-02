@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.CheckBox;
 import android.widget.ExpandableListView;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.text.Collator;
@@ -74,10 +75,11 @@ public class TaskAdapter extends BaseExpandableListAdapter {
             row = inflater.inflate(R.layout.task_view, parent, false);
         }
 
-        TaskData taskData = data_.get(groupPosition).second.get(childPosition);
+        final TaskData taskData = data_.get(groupPosition).second.get(childPosition);
         row.setTag(taskData);
         TextView taskName = row.findViewById(R.id.TaskName);
         CheckBox taskCheckBox = row.findViewById(R.id.TaskCheckBox);
+        ImageButton removeTaskButton = row.findViewById(R.id.RemoveTaskButton);
         int nameColor = row.getResources().getColor(R.color.text);
         int qtyColor = row.getResources().getColor(R.color.colorAccent);
         int paintFlags = 0;
@@ -108,8 +110,22 @@ public class TaskAdapter extends BaseExpandableListAdapter {
         ss.setSpan(new ForegroundColorSpan(qtyColor), startQty, displayText.length(), 0);
         taskName.setText( ss );
         taskCheckBox.setChecked(taskData.completed_);
-        if ( !checkable_ )
+        if ( checkable_ )
+            removeTaskButton.setVisibility(View.GONE);
+        else
             taskCheckBox.setVisibility(View.GONE);
+
+        //Make the remove task button remove the task
+        //Remove the item on button pressed
+        removeTaskButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Remove it from the lists
+                original_data_.remove(taskData);
+                refresh();
+            }
+        });
+
         taskName.setPaintFlags(paintFlags);
         return row;
     }

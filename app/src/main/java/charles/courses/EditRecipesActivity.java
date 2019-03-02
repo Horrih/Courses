@@ -3,8 +3,6 @@ package charles.courses;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -17,7 +15,6 @@ import java.util.TreeMap;
 
 public class EditRecipesActivity extends Activity {
     protected RecipeStorage.Recipe chosenRecipe_ = null;
-    protected boolean hideValidateButton_ = true;
     protected TaskAdapter adapter_ = null;
     static class ActivityType { static int TASK_ACTIVITY = 0, SELECT_RECIPE = 1;}
 
@@ -46,9 +43,6 @@ public class EditRecipesActivity extends Activity {
 
             //Refresh the task display
             adapter_.refresh();
-
-            //Hide or show the validate recipe menu according to the changes
-            invalidateOptionsMenu();
 
         } else if ( requestCode == ActivityType.SELECT_RECIPE ) {
             Bundle bundle = data.getExtras();
@@ -99,7 +93,6 @@ public class EditRecipesActivity extends Activity {
         nbPeople.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 chosenRecipe_.nbPeople_ = i + 1;
-                invalidateOptionsMenu();
             }
             @Override public void onNothingSelected(AdapterView<?> adapterView) {}
         });
@@ -121,23 +114,7 @@ public class EditRecipesActivity extends Activity {
         enableTaskModification(listView);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_add_recipe, menu);
-        menu.findItem(R.id.validate_recipe).setVisible(showValidateButton());
-        return true;
-    }
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.validate_recipe)
-            validateRecipe();
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    void validateRecipe() {
+    void updateRecipe() {
         //Save the changes
         getStorage().recipes_.recipes_.put(chosenRecipe_.name_, chosenRecipe_);
 
@@ -155,22 +132,6 @@ public class EditRecipesActivity extends Activity {
         bundleOut.putSerializable(SelectItemActivity.InputMarker, items);
         intent.putExtras(bundleOut);
         startActivityForResult(intent, ActivityType.SELECT_RECIPE);
-    }
-
-    boolean showValidateButton() {
-        if ( chosenRecipe_ == null )
-            return false;
-
-        RecipeStorage.Recipe old = getRecipes().recipes_.get(chosenRecipe_.name_);
-        RecipeStorage.Recipe current = chosenRecipe_;
-        boolean change = old.nbPeople_ != current.nbPeople_ || old.tasks_.size() != current.tasks_.size();
-        for (int i = 0; i < old.tasks_.size() && !change; i++) {
-            TaskData newTask = current.tasks_.get(i);
-            TaskData oldTask = old.tasks_.get(i);
-            change |= !newTask.name_.equals(oldTask.name_);
-            change |= !newTask.qty_.equals(oldTask.qty_);
-        }
-        return change;
     }
 
     @Override
@@ -192,6 +153,6 @@ public class EditRecipesActivity extends Activity {
     }
 
     void onPrevArrowClicked() {
-        chooseRecipe();
+        updateRecipe();
     }
 }

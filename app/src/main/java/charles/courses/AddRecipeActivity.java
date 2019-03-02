@@ -2,6 +2,8 @@ package charles.courses;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Spinner;
@@ -25,6 +27,22 @@ public class AddRecipeActivity extends EditRecipesActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_add_recipe, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.validate_recipe)
+            validateRecipe();
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public void finish() {
         //Serialization to send result task back to the parent activity
         Bundle bundle = new Bundle();
@@ -35,7 +53,6 @@ public class AddRecipeActivity extends EditRecipesActivity {
         super.finish();
     }
 
-    @Override
     void validateRecipe() {
         output_.tasks_ = chosenRecipe_.tasks_;
         finish();
@@ -54,7 +71,6 @@ public class AddRecipeActivity extends EditRecipesActivity {
             }
             @Override public void onNothingSelected(AdapterView<?> adapterView) {}
         });
-        invalidateOptionsMenu();
     }
 
     @Override
@@ -76,11 +92,6 @@ public class AddRecipeActivity extends EditRecipesActivity {
 
         //Update the displayed quantities
         adapter_.notifyDataSetChanged();
-    }
-
-    @Override
-    boolean showValidateButton() {
-        return chosenRecipe_ != null && !chosenRecipe_.tasks_.isEmpty();
     }
 
     @Override
