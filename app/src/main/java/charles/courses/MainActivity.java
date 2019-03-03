@@ -292,4 +292,9 @@ public class MainActivity extends Activity {
         Intent intent = new Intent(MainActivity.this, AddRecipeActivity.class);
         startActivityForResult(intent, ActionType.ADD_RECIPE_ACTIVITY);
     }
+
+    @Override
+    public void onNewTask(View v){
+        super.onNewTask(v);
+    }
 }

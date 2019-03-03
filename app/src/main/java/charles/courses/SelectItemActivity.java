@@ -90,6 +90,10 @@ public class SelectItemActivity extends AppCompatActivity {
         listView_.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         listView_.setItemAnimator(new DefaultItemAnimator());
         listView_.setAdapter(adapter_);
+
+        //Disable the possibility to add items if the items modifications is disabled by hiding the button
+        if ( !input_.enableItemsModifications_ )
+            findViewById(R.id.NewItemButton).setVisibility(View.GONE);
     }
 
     @Override
@@ -123,22 +127,8 @@ public class SelectItemActivity extends AppCompatActivity {
         setResult( 0, intent);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_select_item, menu);
-        MenuItem addButton = menu.findItem(R.id.add_item);
-        addButton.setVisible(input_.enableItemsModifications_);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.add_item ) {
-            adapter_.newItem();
-        }
-        return super.onOptionsItemSelected(item);
+    public void onNewItem(View v) {
+        adapter_.newItem();
     }
 
     class SelectItemAdapter extends RecyclerView.Adapter<SelectItemAdapter.SelectItemViewHolder> {

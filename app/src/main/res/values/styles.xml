@@ -34,6 +34,19 @@
         <item name="android:textIsSelectable">false</item>
     </style>
 
+    <style name="FloatingButton" parent="Widget.Design.FloatingActionButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">bottom|end</item>
+        <item name="android:layout_margin">@dimen/fab_margin</item>
+        <item name="android:scaleType">center</item>
+        <item name="android:tint">@color/colorAccent</item>
+        <item name="backgroundTint">@android:color/background_light</item>
+    </style>
+
+    <style name="AddButton" parent="FloatingButton">
+        <item name="srcCompat">@android:drawable/ic_input_add</item>
+    </style>
 
     <style name="CustomShowCase" parent="ShowcaseView">
         <item name="sv_backgroundColor">@color/backgroundTransparent</item>

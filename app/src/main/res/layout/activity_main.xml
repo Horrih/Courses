@@ -25,25 +25,14 @@
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/NewRecipeButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/fab_margin"
-                android:scaleType="center"
                 android:onClick="onAddRecipe"
-                android:tint="@color/colorAccent"
-                app:backgroundTint="@android:color/background_light"
-                app:srcCompat="@drawable/ic_description_24dp" />
+                app:srcCompat="@drawable/ic_description_24dp"
+                style="@style/FloatingButton" />
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/NewTaskButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/fab_margin"
-                android:scaleType="center"
                 android:onClick="onNewTask"
-                android:tint="@color/colorAccent"
-                app:backgroundTint="@android:color/background_light"
-                app:srcCompat="@android:drawable/ic_input_add" />
+                style="@style/AddButton"/>
         </LinearLayout>
 
     </android.support.design.widget.CoordinatorLayout>
