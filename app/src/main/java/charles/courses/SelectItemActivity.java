@@ -12,10 +12,9 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -26,6 +25,7 @@ import android.widget.TextView;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.TreeSet;
 
 public class SelectItemActivity extends AppCompatActivity {
 
@@ -51,6 +51,7 @@ public class SelectItemActivity extends AppCompatActivity {
         ArrayList<String> removedItems_ = new ArrayList<>();
         ArrayList<ValueChange> modifiedItems_ = new ArrayList<>();
         ArrayList<String> updatedList_ = new ArrayList<>();
+        boolean back_ = false;
     }
 
     static String InputMarker = "InputMarker";
@@ -70,6 +71,7 @@ public class SelectItemActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                result_.back_ = true;
                 finish();
             }
         });
@@ -85,7 +87,7 @@ public class SelectItemActivity extends AppCompatActivity {
             }
         }
         //Display the choices
-        adapter_ = new SelectItemAdapter(this );
+        adapter_ = new SelectItemAdapter(input_.values_, input_.selected_);
         listView_ = findViewById(R.id.ItemsList);
         listView_.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         listView_.setItemAnimator(new DefaultItemAnimator());
@@ -103,21 +105,37 @@ public class SelectItemActivity extends AppCompatActivity {
     }
 
     void updateResult() {
-        //Compute the modified and added list
-        for ( int i = 0; i < input_.values_.size(); i++ ) {
-            String oldItem = input_.values_.get( i );
-            String newItem = adapter_.items_.get(i);
-            if ( !oldItem.equals(newItem) )
-                result_.modifiedItems_.add( new ValueChange( oldItem, newItem ) );
+        //Compute the resulting lists
+        TreeSet<String> oldRemaining = new TreeSet<>();
+        for ( Pair<String, String> p : adapter_.items_ ) {
+            String oldItem = p.second;
+            String newItem = p.first;
+            if ( newItem.isEmpty() )
+                continue;
+
+            result_.updatedList_.add( newItem );
+            if ( !oldItem.isEmpty() ) {
+                oldRemaining.add( oldItem );
+                if ( !oldItem.equals(newItem) )
+                    result_.modifiedItems_.add( new ValueChange( oldItem, newItem ) );
+            }
+            else
+                result_.addedItems_.add( newItem );
         }
 
-        for ( int i = input_.values_.size(); i < adapter_.getItemCount(); i++ )
-            result_.addedItems_.add( adapter_.items_.get(i));
+        for ( String item : input_.values_ )
+            if ( !oldRemaining.contains( item ) )
+                result_.removedItems_.add( item );
 
-        if ( adapter_.getItemCount() > 0 && adapter_.selected_ >= 0)
-            result_.selected_ = adapter_.items_.get( adapter_.selected_ );
+        if ( adapter_.items_.size() > 0 && adapter_.selected_ >= 0 ) {
+            result_.selected_ = adapter_.items_.get(adapter_.selected_).first;
 
-        result_.updatedList_.addAll( adapter_.items_ );
+            //If selected element is empty, we take the first non-empty one a a fallback mechanism
+            if ( result_.selected_.isEmpty() && !result_.updatedList_.isEmpty() )
+                result_.selected_ = result_.updatedList_.get(0);
+        }
+        else
+            result_.selected_ = "";
 
         //Serialization to send result back to MainActivity
         Bundle bundle = new Bundle();
@@ -132,7 +150,7 @@ public class SelectItemActivity extends AppCompatActivity {
     }
 
     class SelectItemAdapter extends RecyclerView.Adapter<SelectItemAdapter.SelectItemViewHolder> {
-        final ArrayList<String> items_ = new ArrayList<>();
+        ArrayList<Pair<String, String>> items_ = new ArrayList<>();
         SelectItemActivity activity_;
         int selected_ = -1;
         int pendingEdit_ = -1;
@@ -156,7 +174,8 @@ public class SelectItemActivity extends AppCompatActivity {
 
                     @Override
                     public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
-                        items_.set( getAdapterPosition(), charSequence.toString() );
+                        int pos = getAdapterPosition();
+                        items_.set( pos, new Pair<>( charSequence.toString(), items_.get( pos ).second ) );
                     }
 
                     @Override public void afterTextChanged(Editable editable) {}
@@ -182,7 +201,10 @@ public class SelectItemActivity extends AppCompatActivity {
                             text_.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    finish();
+                                    if ( text_.getText().toString().isEmpty() )
+                                        removeButton_.callOnClick();
+                                    else
+                                        finish();
                                 }
                             });
                         }
@@ -205,10 +227,6 @@ public class SelectItemActivity extends AppCompatActivity {
                     public void onClick(View v) {
                         //Remove it from the lists
                         int positionRemoved = getAdapterPosition();
-                        if ( positionRemoved < activity_.input_.values_.size() ) {
-                            activity_.result_.removedItems_.add(activity_.input_.values_.get( positionRemoved ));
-                            activity_.input_.values_.remove(positionRemoved);
-                        }
                         items_.remove(positionRemoved);
                         notifyItemRemoved(positionRemoved);
 
@@ -242,14 +260,13 @@ public class SelectItemActivity extends AppCompatActivity {
             }
         }
 
-        SelectItemAdapter(SelectItemActivity activity){
-            activity_ = activity;
-            items_.addAll(activity.input_.values_);
-            for ( int i = 0; i < items_.size(); i++ ) {
-                if ( items_.get(i).equals( activity.input_.selected_ ) ) {
+        SelectItemAdapter(ArrayList<String> items, String selected){
+            for ( String s : items )
+                items_.add( new Pair<>( s, s ) );
+
+            for ( int i = 0; i < items.size(); i++ )
+                if ( items_.get(i).first.equals( selected  ) )
                     selected_ = i;
-                }
-            }
         }
 
         @Override
@@ -265,7 +282,7 @@ public class SelectItemActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(@NonNull final SelectItemViewHolder holder, int position) {
-            holder.text_.setText(items_.get(position));
+            holder.text_.setText(items_.get(position).first);
             if ( pendingEdit_ == position ) {
                 pendingEdit_ = -1;
 
@@ -295,7 +312,7 @@ public class SelectItemActivity extends AppCompatActivity {
         }
 
         void newItem() {
-            items_.add( "" );
+            items_.add( new Pair<>( "", "" ) );
             final int lastPosition = adapter_.getItemCount() - 1;
             adapter_.notifyItemInserted(lastPosition);
 

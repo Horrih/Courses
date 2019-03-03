@@ -171,7 +171,7 @@ public class NewTaskActivity extends Activity {
             history.addAll( recipe.getValue().tasks_ );
 
         for ( String list : getStorage().tasks_.getLists() )
-            if ( history.size() < 1000 && !list.equals( getStorage().currentList_ ) )
+            if ( history.size() < 100 && !list.equals( getStorage().currentList_ ) )
                 history.addAll( getStorage().tasks_.getHistory(list));
 
         Set<String> names = new TreeSet<>();

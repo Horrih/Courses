@@ -62,7 +62,7 @@ public class EditRecipesActivity extends Activity {
                 for (String added : result.addedItems_)
                     recipes.put(added, new RecipeStorage.Recipe(added));
 
-                if (result.selected_.isEmpty()) {
+                if (result.selected_.isEmpty() || result.back_ ) {
                     finish();
                     return;
                 }
