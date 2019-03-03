@@ -19,7 +19,9 @@ import android.widget.TextView;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 public class NewTaskActivity extends Activity {
@@ -161,9 +163,13 @@ public class NewTaskActivity extends Activity {
     }
 
     private void initFromHistory() {
-        //We give as history of tasks up to N items from other lists + the history of the current list
+        //We give as history of tasks up to N items from other lists + the history of the current list + recipes
         final ArrayList<TaskData> history = new ArrayList<>();
         history.addAll(getStorage().tasks_.getHistory(getStorage().currentList_));
+
+        for ( Map.Entry<String, RecipeStorage.Recipe> recipe : getStorage().recipes_.recipes_.entrySet() )
+            history.addAll( recipe.getValue().tasks_ );
+
         for ( String list : getStorage().tasks_.getLists() )
             if ( history.size() < 1000 && !list.equals( getStorage().currentList_ ) )
                 history.addAll( getStorage().tasks_.getHistory(list));
