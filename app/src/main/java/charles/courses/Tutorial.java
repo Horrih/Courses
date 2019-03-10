@@ -41,7 +41,6 @@ public class Tutorial implements OnShowcaseEventListener {
         NEW_TASK_DURATION_RECURRENCE,
         NEW_TASK_FINISH,
         CROSS_TASK,
-        MODIFY_TASK,
         REMOVE_COMPLETED,
         SHARE_TASKS,
         TAB1,
@@ -92,8 +91,7 @@ public class Tutorial implements OnShowcaseEventListener {
             activity.getStorage().recipes_.recipes_.put(res.getString(R.string.tutorial), new RecipeStorage.Recipe(""));
 
             //Dialog box to choose if tutorial should end or proceed
-            AlertDialog.Builder builder;
-            builder = new AlertDialog.Builder(activity);
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
             builder.setTitle(res.getString(R.string.tuto_launch_title))
                     .setMessage(res.getString(R.string.tuto_launch_field))
                     .setPositiveButton(R.string.tuto_proceed_yes, new DialogInterface.OnClickListener() {
@@ -116,7 +114,8 @@ public class Tutorial implements OnShowcaseEventListener {
                                 }
                             });
                         }
-                    }).show();
+                    })
+                    .show();
         } else if ( step_ == Step.WELCOME ) {
             showcase(activity, null, res.getString(R.string.tuto_welcome_title), res.getString(R.string.tuto_welcome_field));
         } else if (step_ == Step.NEW_TASK_BUTTON) {
@@ -189,12 +188,11 @@ public class Tutorial implements OnShowcaseEventListener {
             delayedStep(1000);
         } else if (step_ == Step.CROSS_TASK) {
             ExpandableListView tasks = mainActivity_.adapter_.adapters_.get(0).listView_;
-            View task = tasks.getChildAt( 9).findViewById(R.id.TaskName);
+            View task = tasks.getChildAt( 9);
+            if ( task != null )
+                task = task.findViewById(R.id.TaskName);
+
             showcase(activity, task, res.getString(R.string.tuto_cross_task_title), res.getString(R.string.tuto_cross_task_field));
-        } else if (step_ == Step.MODIFY_TASK) {
-            ExpandableListView tasks = mainActivity_.adapter_.adapters_.get(0).listView_;
-            View task = tasks.getChildAt(9).findViewById(R.id.TaskName);
-            showcase(activity, task, res.getString(R.string.tuto_modify_task_title), res.getString(R.string.tuto_modify_task_field));
         } else if (step_ == Step.REMOVE_COMPLETED) {
             showcase(activity, activity.findViewById(R.id.clear_tasks), res.getString(R.string.tuto_remove_crossed_title), res.getString(R.string.tuto_remove_crossed_field));
         } else if ( step_ == Step.SHARE_TASKS ) {

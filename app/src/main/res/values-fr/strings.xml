@@ -80,9 +80,8 @@
     <string name="tuto_recurrence_time_title">Choisir une durée avant le prochain rappel</string>
     <string name="tuto_recurrence_time_field">Réglez ici la durée avant le prochain rappel\nPar exemple racheter du lait tous les 2 mois</string>
     <string name="tuto_cross_task_title">Cocher vos tâches</string>
-    <string name="tuto_cross_task_field">Pour cocher une tâche, cliquer dessus</string>
-    <string name="tuto_modify_task_title">Modifier une tâche</string>
-    <string name="tuto_modify_task_field">Pour modifer une tâche, appuyer longuement sur elle</string>
+    <string name="tuto_cross_task_field">Pour cocher une tâche, cliquer dessus
+        \nPour la modifier, appuyer longuement</string>
     <string name="tuto_remove_crossed_title">Supprimer les tâches terminées</string>
     <string name="tuto_remove_crossed_field">Le bouton Corbeille vous permet de supprimer les tâches terminées</string>
     <string name="tuto_share_tasks_title">Partagez votre liste à un ami</string>

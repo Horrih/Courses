@@ -52,14 +52,15 @@
     <string name="tuto_next">Next</string>
     <string name="tuto_end">Close</string>
     <string name="tuto_launch_title">Welcome to EasyList !</string>
-    <string name="tuto_launch_field">This is a tutorial to present EasyList\'s features. Would you like to see it ?</string>
+    <string name="tuto_launch_field">This is a tutorial to present EasyList\'s features.\nWould you like to see it ?</string>
     <string name="tuto_proceed_yes">Let\'s do it !</string>
     <string name="tuto_proceed_no">No thanks</string>
     <string name="tuto_welcome_title">Welcome to EasyList\'s tutorial</string>
     <string name="tuto_welcome_field">EasyList enables you to easily handle your grocery list, or any other checklist
         \nFollow this quick tutorial to discover its features</string>
-    <string name="tuto_end_title">End of the tutorial</string>
-    <string name="tuto_end_field">This tutorial is now over, you can find it in the side panel\nWe hope EasyList will prove useful to you !</string>
+    <string name="tuto_end_title">It\'s your turn now !</string>
+    <string name="tuto_end_field">This tutorial is now over, you can find it on the side panel
+        \nWe hope EasyList will prove useful to you !</string>
     <string name="tuto_add_task_title">Add a task</string>
     <string name="tuto_add_task_field">This button adds a task to your current list</string>
     <string name="tuto_add_task_name">Milk</string>
@@ -80,9 +81,8 @@
     <string name="tuto_recurrence_time_field">Choose here the duration before the next reminder.
         \nFor example buy milk every two months</string>
     <string name="tuto_cross_task_title">Check your tasks</string>
-    <string name="tuto_cross_task_field">To chek an item, click on it</string>
-    <string name="tuto_modify_task_title">Modify a task</string>
-    <string name="tuto_modify_task_field">To modify a task, long press it</string>
+    <string name="tuto_cross_task_field">To check an item, click on it
+        \nTo modify it, long press it</string>
     <string name="tuto_remove_crossed_title">Clear the completed tasks</string>
     <string name="tuto_remove_crossed_field">The bin button clears the completed tasks</string>
     <string name="tuto_share_tasks_title">Share your list to a friend</string>
@@ -105,7 +105,7 @@
     <string name="tuto_task_name_yeast">Baker\'s yeast</string>
     <string name="tuto_task_name_mozza">Mozzarella</string>
     <string name="tuto_task_name_tomato">Tomato pulp</string>
-    <string name="tuto_task_name_salad">Pepperoni</string>
+    <string name="tuto_task_name_salad">Basil</string>
     <string name="tuto_task_name_tortilla">Tortillas</string>
     <string name="tuto_task_name_chips">Chips</string>
     <string name="tuto_task_name_peppers">Peppers</string>
