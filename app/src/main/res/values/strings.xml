@@ -13,7 +13,7 @@
     <string name="task_qty_hint">Quantity</string>
     <string name="store_hint">Store</string>
     <string name="reason_hint">For</string>
-    <string name="reminder">Recurrent Task</string>
+    <string name="reminder">Remind me</string>
     <string name="after">After</string>
     <string name="edit_button">Modify Button</string>
     <string name="delete_button">Delete Button</string>
