@@ -120,7 +120,7 @@ class PageAdapter extends FragmentPagerAdapter {
                         Context context = v.getContext();
 
                         taskData.recurrence_.lastCompletionDate_ = new Date();
-                        DateFormat dateFormat = new SimpleDateFormat("EEEE dd MMM yyyy", Locale.FRANCE);
+                        DateFormat dateFormat = new SimpleDateFormat("EEEE dd MMM yyyy", getResources().getConfiguration().locale );
                         String date = dateFormat.format(taskData.recurrence_.nextAvailableDate());
                         CharSequence text = getResources().getString(R.string.reactivation_message) + " " + date;
                         Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
