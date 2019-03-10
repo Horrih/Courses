@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.os.ConfigurationCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -120,7 +121,8 @@ class PageAdapter extends FragmentPagerAdapter {
                         Context context = v.getContext();
 
                         taskData.recurrence_.lastCompletionDate_ = new Date();
-                        DateFormat dateFormat = new SimpleDateFormat("EEEE dd MMM yyyy", getResources().getConfiguration().locale );
+                        Locale locale = ConfigurationCompat.getLocales(getResources().getConfiguration()).get(0);
+                        DateFormat dateFormat = new SimpleDateFormat("EEEE dd MMM yyyy", locale );
                         String date = dateFormat.format(taskData.recurrence_.nextAvailableDate());
                         CharSequence text = getResources().getString(R.string.reactivation_message) + " " + date;
                         Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
